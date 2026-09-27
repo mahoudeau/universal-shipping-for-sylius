@@ -14,6 +14,19 @@ follow [semantic versioning](https://semver.org/).
   Protomaps file (PMTiles 4.5.0 ships with the plugin). Off by default
 - Map theming in config: pin colours, and the map's own background, water,
   parks, roads, buildings and labels
+- Labels from the admin order page: create, print and cancel, through
+  Sendcloud's shipments API v3. The tracking number goes into Sylius's own
+  tracking field, so the "shipped" email carries it
+- `sendcloud.test_labels`, which makes every label Sendcloud's free
+  "Unstamped letter", for development and staging
+- Tracking by Sendcloud webhook, signed and checked, with statuses shown on
+  the admin order page. Late updates never overwrite newer ones
+- `LabelProviderInterface` and `ParcelTracker`, so other carriers can add
+  labels and tracking the same way
+- Fake labels: a made-up tracking number and a PDF marked as a test, with no
+  carrier involved. `label_provider` on a delivery option mixes real points
+  with fake labels, and `universal-shipping:fake-tracking` moves a fake parcel
+  along as a carrier would
 
 ## 0.1.0 · 27 September 2026
 

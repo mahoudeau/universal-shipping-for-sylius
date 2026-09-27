@@ -1,0 +1,25 @@
+# Import under the admin prefix, so the admin firewall guards them:
+#   universal_shipping_admin:
+#       resource: '@UniversalShippingPlugin/config/routes/admin.yaml'
+#       prefix: '/%sylius_admin.path_name%'
+
+universal_shipping_admin_label_create:
+    path: /universal-shipping/shipments/{id}/label
+    methods: [POST]
+    controller: Mahoudeau\UniversalShipping\Controller\Admin\LabelController::create
+    requirements:
+        id: '\d+'
+
+universal_shipping_admin_label_download:
+    path: /universal-shipping/shipments/{id}/label.pdf
+    methods: [GET]
+    controller: Mahoudeau\UniversalShipping\Controller\Admin\LabelController::download
+    requirements:
+        id: '\d+'
+
+universal_shipping_admin_label_cancel:
+    path: /universal-shipping/shipments/{id}/label/cancel
+    methods: [POST]
+    controller: Mahoudeau\UniversalShipping\Controller\Admin\LabelController::cancel
+    requirements:
+        id: '\d+'

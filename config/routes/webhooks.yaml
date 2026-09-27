@@ -1,0 +1,8 @@
+# Import without a prefix: carriers call this URL, not people.
+#   universal_shipping_webhooks:
+#       resource: '@UniversalShippingPlugin/config/routes/webhooks.yaml'
+
+universal_shipping_webhook_sendcloud:
+    path: /universal-shipping/webhooks/sendcloud
+    methods: [POST]
+    controller: Mahoudeau\UniversalShipping\Controller\SendcloudWebhookController

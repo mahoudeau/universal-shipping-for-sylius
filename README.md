@@ -28,11 +28,16 @@ production user. What changed, and when: [CHANGELOG.md](CHANGELOG.md).
 - **An optional map** next to the list, drawn with MapLibre on OpenStreetMap
   data. Click a pin, the point is chosen. Free map sources only, and the
   checkout works the same without it.
-- **A fake provider** with four fixed points, for demos, themes and tests
-  without carrier credentials.
+- **Labels from the admin order page.** Create, print, and cancel while the
+  carrier doesn't have the parcel yet. The tracking number goes into Sylius's
+  own tracking field, so the "shipped" email carries it.
+- **Tracking by webhook.** The order shows where the parcel is: label ready,
+  in transit, at the pickup point, delivered.
+- **A fake provider** with four fixed points and test labels, for demos,
+  themes and tests without carrier credentials.
 - **English and French** out of the box.
 
-Labels and tracking come next. See the [roadmap](#roadmap).
+Colissimo and address autocomplete come next. See the [roadmap](#roadmap).
 
 ## Why another shipping plugin
 
@@ -77,7 +82,8 @@ touches.
 
 - PHP 8.2 or later
 - Sylius 2.1 or later (developed and used on 2.2)
-- A Sendcloud account with an API integration, for the Sendcloud provider
+- A Sendcloud account with an API integration and a sender address, for the
+  Sendcloud provider
 
 ## Installation
 
@@ -93,19 +99,27 @@ composer require mahoudeau/universal-shipping-for-sylius
 Mahoudeau\UniversalShipping\UniversalShippingPlugin::class => ['all' => true],
 ```
 
-**3. Add the fields to your entities.** The point lives on the shipment, the
-delivery option on the shipping method.
+**3. Add the fields to your entities.** The point and the parcel live on the
+shipment, the delivery option on the shipping method.
 
 ```php
 // src/Entity/Shipping/Shipment.php
+use Mahoudeau\UniversalShipping\Model\ParcelAwareInterface;
+use Mahoudeau\UniversalShipping\Model\ParcelAwareTrait;
 use Mahoudeau\UniversalShipping\Model\PickupPointAwareInterface;
 use Mahoudeau\UniversalShipping\Model\PickupPointAwareTrait;
 
-class Shipment extends BaseShipment implements PickupPointAwareInterface
+#[ORM\Index(columns: ['universal_shipping_parcel_id'], name: 'IDX_universal_shipping_parcel_id')]
+class Shipment extends BaseShipment implements PickupPointAwareInterface, ParcelAwareInterface
 {
+    use ParcelAwareTrait;
     use PickupPointAwareTrait;
 }
 ```
+
+Leave out `ParcelAwareInterface` if you only want the picker: the label
+buttons then stay hidden. The index is for the tracking webhook, which looks a
+shipment up by its parcel id.
 
 ```php
 // src/Entity/Shipping/ShippingMethod.php
@@ -119,16 +133,30 @@ class ShippingMethod extends BaseShippingMethod implements DeliveryOptionAwareIn
 }
 ```
 
-Then generate and run the migration. It adds two nullable columns,
-`sylius_shipment.universal_shipping_pickup_point` and
-`sylius_shipping_method.universal_shipping_delivery_option`.
+Then generate and run the migration. It adds nullable columns only:
+`universal_shipping_pickup_point`, `universal_shipping_parcel` and
+`universal_shipping_parcel_id` on `sylius_shipment`, and
+`universal_shipping_delivery_option` on `sylius_shipping_method`.
 
 ```sh
 bin/console doctrine:migrations:diff
 bin/console doctrine:migrations:migrate
 ```
 
-**4. Declare your delivery options** in `config/packages/universal_shipping.yaml`.
+**4. Import the routes** in `config/routes/universal_shipping.yaml`. The label
+buttons go under the admin prefix, so the admin firewall guards them. The
+webhook goes without a prefix: carriers call it, not people.
+
+```yaml
+universal_shipping_admin:
+    resource: '@UniversalShippingPlugin/config/routes/admin.yaml'
+    prefix: '/%sylius_admin.path_name%'
+
+universal_shipping_webhooks:
+    resource: '@UniversalShippingPlugin/config/routes/webhooks.yaml'
+```
+
+**5. Declare your delivery options** in `config/packages/universal_shipping.yaml`.
 A delivery option is one way of delivering with one carrier. The Sylius
 shipping method on top of it adds the price, the zone and the name customers
 see.
@@ -146,13 +174,14 @@ universal_shipping:
             delivery: pickup_point
             options:
                 point_types: [servicepoint]   # Sendcloud also returns lockers
+                shipping_option: 'mondial_relay:service_point,dualapi/size=l,c2c'   # for labels
 ```
 
 The keys come from the Sendcloud panel: **Settings > Connected stores >
 Sendcloud API**. Turn on pickup point delivery there and tick the carriers you
 want. Keep the keys out of the repository.
 
-**5. Link a shipping method** in the admin: edit it and choose the delivery
+**6. Link a shipping method** in the admin: edit it and choose the delivery
 option in the **Universal Shipping** field. That method now asks for a point
 at checkout.
 
@@ -163,14 +192,22 @@ at checkout.
 ```yaml
 universal_shipping:
     cache_ttl: 600                    # seconds a search stays cached
+    labels:
+        weight_unit: kg               # unit of the weights on your product variants
+        default_weight: 0.5           # parcel weight when no product has one
     sendcloud:
         public_key: ''
-        secret_key: ''
+        secret_key: ''                # also checks the webhook's signature
+        test_labels: false            # true: every label is a free "Unstamped letter"
+        sender_address_id: ~          # only needed with several sender addresses
+        paper_size: ~                 # A4, A5 or A6; ~ keeps the carrier's size
         service_points_url: 'https://servicepoints.sendcloud.sc/api/v2'
+        api_url: 'https://panel.sendcloud.sc/api/v3'
     delivery_options:
         <code>:                       # what the admin links a method to
             label: ~                  # shown in the admin
             provider: ~               # sendcloud, fake, or your own
+            label_provider: ~         # makes the labels, if not the provider
             carrier: ~                # e.g. mondial_relay
             delivery: pickup_point    # or home
             options: {}               # passed to the provider as is
@@ -183,6 +220,8 @@ Sendcloud options:
 | `point_types` | all | `servicepoint` for relay points, `locker` for lockers |
 | `radius` | 5000 | search radius in metres |
 | `limit` | 10 | how many points the customer sees |
+| `shipping_option` | none | Sendcloud shipping option code for labels. `POST /api/v3/shipping-options` lists yours |
+| `contract_id` | none | only when you have several contracts with the carrier |
 
 To develop or test without credentials, point a delivery option at the fake
 provider:
@@ -249,6 +288,79 @@ partly recoloured. Street names keep the style's font, since the tile server
 only has its own. For full control, design a style in
 [Maputnik](https://maplibre.org/maputnik/) and point `style` at it.
 
+## Labels and tracking
+
+A paid shipment that hasn't left yet gets a **Create label** button on the
+admin order page, next to Sylius's **Ship**. It sends the carrier the
+customer's address, the chosen point, the order total and the parcel's weight.
+Then:
+
+- **Print label** opens the PDF.
+- The tracking number is already in Sylius's tracking field, so **Ship** sends
+  the usual email with it.
+- **Cancel label** voids it until the carrier has the parcel. The shipment can
+  then get a new one.
+
+Most carriers charge as soon as the label exists. Sendcloud refunds a label
+cancelled within 42 days if the parcel never shipped.
+
+Labels go through Sendcloud's shipments API v3. The older parcels API is
+closed to accounts opened since April 2026.
+
+**Test labels.** With `sendcloud.test_labels: true`, every label is
+Sendcloud's free "Unstamped letter", sent to the customer's address instead of
+the point. Same flow, nothing charged. Keep it on everywhere but production:
+
+```yaml
+universal_shipping:
+    sendcloud:
+        test_labels: '%env(bool:SENDCLOUD_TEST_LABELS)%'
+```
+
+**Fake labels.** No carrier account, or one you'd rather not touch? Give the
+delivery option `label_provider: fake`. Points still come from the real
+provider. Labels get a made-up tracking number and a PDF marked as a test.
+You play the carrier from the console:
+
+```yaml
+when@dev:
+    universal_shipping:
+        delivery_options:
+            mondial_relay_point_relais:
+                label_provider: fake
+```
+
+```sh
+bin/console universal-shipping:fake-tracking fake-3f9a1c2b7e ready_for_pickup
+```
+
+The parcel id is on the admin order page. The command won't touch a real
+carrier's parcel.
+
+**Tracking.** In Sendcloud, open **Settings > Integrations**, configure your
+API integration, tick **Webhook feedback enabled** and enter:
+
+```
+https://your-shop.example/universal-shipping/webhooks/sendcloud
+```
+
+Sendcloud signs every call with your secret key. The plugin refuses the ones
+that don't match, and an update that arrives late after a retry never
+overwrites a newer one. The order page shows:
+
+| Status | Means |
+|---|---|
+| Label ready | announced, the carrier has not scanned it yet |
+| In transit | the carrier has it |
+| At the pickup point | waiting for the customer |
+| Delivered | handed over or collected |
+| Returned | refused or sent back |
+| Needs attention | failed delivery, invalid address, carrier exception |
+| Cancelling, Cancelled | the label was voided |
+
+The plugin never marks a shipment shipped on its own. That stays a click on
+**Ship**, so the email goes out when you decide.
+
 ## Adding a carrier
 
 Implement `PickupPointProviderInterface` and give it a code:
@@ -271,18 +383,27 @@ carrier cannot be reached, and the plugin takes care of the rest. The
 [Sendcloud provider](src/Provider/Sendcloud/SendcloudPickupPointProvider.php)
 is a complete example.
 
+For labels, implement `LabelProviderInterface` with
+`#[AsLabelProvider('my_carrier')]`: create a label, return its PDF, cancel it.
+Throw `LabelException` with a message the shop owner can act on, since the
+admin shows it word for word. A carrier without labels is fine, the buttons
+just don't appear. For tracking, turn the carrier's webhook into a call to
+`ParcelTracker::update()`, like the
+[Sendcloud webhook](src/Controller/SendcloudWebhookController.php).
+
 ![The chosen point on the admin order page](docs/images/admin-order.png)
 
 ## Roadmap
 
 Roughly in this order. Nothing here is promised by a date.
 
-1. **Labels and tracking through Sendcloud**: create the parcel from the
-   admin, print the label, store the tracking number on the shipment.
-2. **Colissimo**, home delivery and point retrait.
-3. **Home delivery and lockers** as first-class delivery options.
-4. **Better addresses**: autocomplete and geocoding with the French national
+1. **Colissimo**, home delivery and point retrait. Sendcloud already offers
+   both, so this is mostly a delivery option away.
+2. **Home delivery and lockers** as first-class delivery options.
+3. **Better addresses**: autocomplete and geocoding with the French national
    address base (BAN), Photon for other countries.
+4. **Labels for several orders at once**, and an option to mark a shipment
+   shipped on the carrier's first scan.
 5. **A shop API endpoint** for headless checkouts.
 6. **Functional tests** of the whole checkout in a Sylius test application.
 

@@ -1,0 +1,7 @@
+universal_shipping:
+    label:
+        created: 'Label created. Tracking number: %tracking%'
+        not_created: 'No label: %error%'
+        cancelled: Label cancelled.
+        cancelling: Cancellation requested. The carrier confirms it later.
+        not_cancelled: 'The label was not cancelled: %error%'

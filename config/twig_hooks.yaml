@@ -55,8 +55,17 @@ sylius_twig_hooks:
                 template: '@UniversalShippingPlugin/admin/shipping_method/form/delivery_option.html.twig'
                 priority: 50
 
-        # Admin: the chosen point on the order page.
+        # Admin: the chosen point and the parcel's tracking on the order page.
         'sylius_admin.order.show.content.sections.shipments.item.general':
             universal_shipping_pickup_point:
                 template: '@UniversalShippingPlugin/admin/order/show/pickup_point.html.twig'
                 priority: 150
+            universal_shipping_parcel:
+                template: '@UniversalShippingPlugin/admin/order/show/parcel.html.twig'
+                priority: 140
+
+        # Admin: create, print and cancel the label, next to Sylius's "Ship" button.
+        'sylius_admin.order.show.content.sections.shipments.item.actions':
+            universal_shipping_label:
+                template: '@UniversalShippingPlugin/admin/order/show/label_actions.html.twig'
+                priority: 300

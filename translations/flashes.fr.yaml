@@ -1,0 +1,7 @@
+universal_shipping:
+    label:
+        created: 'Étiquette créée. Numéro de suivi : %tracking%'
+        not_created: 'Pas d''étiquette : %error%'
+        cancelled: Étiquette annulée.
+        cancelling: Annulation demandée. Le transporteur la confirme plus tard.
+        not_cancelled: 'L''étiquette n''a pas été annulée : %error%'

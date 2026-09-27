@@ -1,0 +1,35 @@
+{% set shipment = hookable_metadata.context.shipment %}
+{% set parcel = shipment.parcel ?? null %}
+
+{% if parcel is not null %}
+    {% set colors = {
+        announced: 'blue',
+        in_transit: 'azure',
+        ready_for_pickup: 'purple',
+        delivered: 'green',
+        returned: 'orange',
+        problem: 'red',
+        cancelling: 'secondary',
+        cancelled: 'secondary',
+    } %}
+
+    <div class="py-2" {{ sylius_test_html_attribute('universal-shipping-parcel', parcel.status.value) }}>
+        <div class="text-secondary small">{{ 'universal_shipping.parcel.label'|trans }}</div>
+        <span class="badge bg-{{ colors[parcel.status.value] }}-lt">{{ ('universal_shipping.parcel.status.' ~ parcel.status.value)|trans }}</span>
+        {% if parcel.statusText is not empty %}
+            <span class="text-secondary small ms-1">{{ parcel.statusText }}</span>
+        {% endif %}
+        {% if parcel.trackingNumber is not empty %}
+            <div>
+                {% if parcel.trackingUrl is not empty %}
+                    <a href="{{ parcel.trackingUrl }}" target="_blank" rel="noopener noreferrer">{{ parcel.trackingNumber }}</a>
+                {% else %}
+                    {{ parcel.trackingNumber }}
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if parcel.statusChangedAt > 0 %}
+            <div class="text-secondary small">{{ parcel.statusChangedAt|round|format_datetime('short', 'short') }}</div>
+        {% endif %}
+    </div>
+{% endif %}

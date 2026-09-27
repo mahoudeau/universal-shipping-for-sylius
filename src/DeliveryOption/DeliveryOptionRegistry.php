@@ -14,7 +14,7 @@ final class DeliveryOptionRegistry
     private array $options = [];
 
     /**
-     * @param array<string, array{label: string, provider: string, carrier: string, delivery: string, options: array<string, mixed>}> $config
+     * @param array<string, array{label: string, provider: string, carrier: string, delivery: string, options: array<string, mixed>, label_provider?: string|null}> $config
      */
     public function __construct(array $config)
     {
@@ -26,6 +26,7 @@ final class DeliveryOptionRegistry
                 carrier: $option['carrier'],
                 deliveryMode: DeliveryMode::from($option['delivery']),
                 options: $option['options'],
+                labelProvider: $option['label_provider'] ?? null,
             );
         }
     }

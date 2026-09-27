@@ -8,6 +8,22 @@ universal_shipping:
         closed: Fermé
         distance_m: '%distance% m'
         distance_km: '%distance% km'
+    label:
+        create: Créer l'étiquette
+        print: Imprimer l'étiquette
+        cancel: Annuler l'étiquette
+        cancel_confirm: Annuler cette étiquette ? Le transporteur ne prendra plus le colis avec.
+    parcel:
+        label: Colis
+        status:
+            announced: Étiquette prête
+            in_transit: En route
+            ready_for_pickup: Au point relais
+            delivered: Livré
+            returned: Retourné
+            problem: À vérifier
+            cancelling: Annulation en cours
+            cancelled: Annulé
     admin:
         delivery_option: Universal Shipping
         delivery_option_help: Transporteur et option de livraison de cette méthode. Laisser vide pour une méthode Sylius classique.

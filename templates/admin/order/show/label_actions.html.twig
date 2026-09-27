@@ -1,0 +1,48 @@
+{% set shipment = hookable_metadata.context.shipment %}
+
+{% if universal_shipping_label_supported(shipment) %}
+    {% set parcel = shipment.parcel %}
+    {% set csrf_token_value = csrf_token(universal_shipping_label_csrf_id(shipment.id)) %}
+
+    {% if parcel is not null and parcel.status.isActive %}
+        <a
+            href="{{ path('universal_shipping_admin_label_download', {id: shipment.id}) }}"
+            class="btn"
+            target="_blank"
+            rel="noopener"
+            {{ sylius_test_html_attribute('universal-shipping-label-download') }}
+        >
+            {{ ux_icon('tabler:printer') }}
+            {{ 'universal_shipping.label.print'|trans }}
+        </a>
+
+        {% if not parcel.status.isHandedOver %}
+            <form
+                action="{{ path('universal_shipping_admin_label_cancel', {id: shipment.id}) }}"
+                method="post"
+                onsubmit="return confirm(this.dataset.confirm)"
+                data-confirm="{{ 'universal_shipping.label.cancel_confirm'|trans }}"
+            >
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token_value }}">
+                <button
+                    type="submit"
+                    class="btn btn-icon"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="{{ 'universal_shipping.label.cancel'|trans }}"
+                    aria-label="{{ 'universal_shipping.label.cancel'|trans }}"
+                    {{ sylius_test_html_attribute('universal-shipping-label-cancel') }}
+                >
+                    {{ ux_icon('tabler:file-x') }}
+                </button>
+            </form>
+        {% endif %}
+    {% elseif universal_shipping_can_create_label(shipment) %}
+        <form action="{{ path('universal_shipping_admin_label_create', {id: shipment.id}) }}" method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token_value }}">
+            <button type="submit" class="btn btn-primary" {{ sylius_test_html_attribute('universal-shipping-label-create') }}>
+                {{ ux_icon('tabler:file-plus') }}
+                {{ 'universal_shipping.label.create'|trans }}
+            </button>
+        </form>
+    {% endif %}
+{% endif %}

@@ -1,0 +1,45 @@
+{
+    "data": {
+        "id": "b7c1a5de-9c4e-4a51-8f39-2d2b5f0e7a11",
+        "label_details": {
+            "mime_type": "application/pdf",
+            "dpi": 72
+        },
+        "order_number": "000000042",
+        "total_order_price": {
+            "currency": "EUR",
+            "value": "95.90"
+        },
+        "carrier": {
+            "code": "mondial_relay",
+            "name": "Mondial Relay"
+        },
+        "to_service_point": {
+            "id": 10459634,
+            "carrier_service_point_id": "FR-00111"
+        },
+        "parcels": [
+            {
+                "id": 383707309,
+                "status": {
+                    "code": "READY_TO_SEND",
+                    "message": "Ready to send"
+                },
+                "documents": [
+                    {
+                        "type": "label",
+                        "size": "a6",
+                        "link": "https://panel.sendcloud.sc/api/v3/parcels/383707309/documents/label"
+                    }
+                ],
+                "weight": {
+                    "value": "0.300",
+                    "unit": "kg"
+                },
+                "tracking_url": "https://tracking.eu-central-1-0.sendcloud.sc/forward?carrier=mondial_relay&code=12345678&destination=FR&lang=fr-fr&source=FR&type=parcel",
+                "tracking_number": "12345678",
+                "label_file": "JVBERi0xLjQK"
+            }
+        ]
+    }
+}

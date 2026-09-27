@@ -8,6 +8,22 @@ universal_shipping:
         closed: Closed
         distance_m: '%distance% m'
         distance_km: '%distance% km'
+    label:
+        create: Create label
+        print: Print label
+        cancel: Cancel label
+        cancel_confirm: Cancel this label? The carrier will no longer take the parcel with it.
+    parcel:
+        label: Parcel
+        status:
+            announced: Label ready
+            in_transit: In transit
+            ready_for_pickup: At the pickup point
+            delivered: Delivered
+            returned: Returned
+            problem: Needs attention
+            cancelling: Cancelling
+            cancelled: Cancelled
     admin:
         delivery_option: Universal Shipping
         delivery_option_help: Carrier and delivery option behind this method. Leave empty for a plain Sylius method.

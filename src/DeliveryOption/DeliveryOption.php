@@ -23,11 +23,18 @@ final readonly class DeliveryOption
         public string $carrier,
         public DeliveryMode $deliveryMode,
         public array $options = [],
+        /** Makes the labels when it is not the provider that finds the points, e.g. "fake" while developing. */
+        public ?string $labelProvider = null,
     ) {
     }
 
     public function needsPickupPoint(): bool
     {
         return DeliveryMode::PickupPoint === $this->deliveryMode;
+    }
+
+    public function labelProviderCode(): string
+    {
+        return $this->labelProvider ?? $this->provider;
     }
 }
