@@ -1,0 +1,87 @@
+[
+    {
+        "id": 11170942,
+        "code": "FR36091",
+        "is_active": true,
+        "shop_type": "1",
+        "general_shop_type": "servicepoint",
+        "extra_data": {"shop_type": "1"},
+        "name": "COPY CENTER SERVICES 13001",
+        "street": "SQUARE BELSUNCE",
+        "house_number": "8",
+        "postal_code": "13001",
+        "city": "MARSEILLE",
+        "latitude": "43.297644",
+        "longitude": "5.376633",
+        "carrier": "mondial_relay",
+        "country": "FR",
+        "formatted_opening_times": {
+            "0": ["09:00 - 19:00"], "1": ["09:00 - 19:00"], "2": ["09:00 - 19:00"], "3": ["09:00 - 19:00"],
+            "4": ["09:00 - 13:00", "14:30 - 19:00"], "5": ["10:00 - 19:00"], "6": []
+        },
+        "distance": 227
+    },
+    {
+        "id": 12397514,
+        "code": "FR23059",
+        "is_active": true,
+        "shop_type": "C",
+        "general_shop_type": "locker",
+        "extra_data": {"shop_type": "C"},
+        "name": "LOCKER NETPHONE PORTE DAIX MARS",
+        "street": "RUE FRANCIS DE PRESSENSE",
+        "house_number": "18",
+        "postal_code": "13001",
+        "city": "MARSEILLE",
+        "latitude": "43.300942",
+        "longitude": "5.376662",
+        "carrier": "mondial_relay",
+        "country": "FR",
+        "formatted_opening_times": {
+            "0": ["09:00 - 12:00", "14:00 - 17:30"], "1": ["09:00 - 12:00", "14:00 - 17:30"], "2": ["09:00 - 12:00", "14:00 - 17:30"],
+            "3": ["09:00 - 12:00", "14:00 - 17:30"], "4": ["09:00 - 12:00", "14:00 - 17:30"], "5": ["09:30 - 12:00", "14:30 - 17:00"], "6": []
+        },
+        "distance": 153
+    },
+    {
+        "id": 10459634,
+        "code": "FR00111",
+        "is_active": true,
+        "shop_type": "1",
+        "general_shop_type": "servicepoint",
+        "extra_data": {"shop_type": "1"},
+        "name": "PORTE DAIX NETPHONE",
+        "street": "RUE FRANCIS DE PRESSENSE    (PORTE D''AIX)",
+        "house_number": "18",
+        "postal_code": "13001",
+        "city": "MARSEILLE",
+        "latitude": "43.300716",
+        "longitude": "5.376711",
+        "carrier": "mondial_relay",
+        "country": "FR",
+        "formatted_opening_times": {
+            "0": ["08:45 - 12:15", "14:00 - 18:00"], "1": ["08:45 - 12:15", "14:00 - 18:00"], "2": ["08:45 - 12:15", "14:00 - 18:00"],
+            "3": ["08:45 - 12:15", "14:00 - 18:00"], "4": ["08:45 - 12:15", "14:00 - 18:00"], "5": ["09:00 - 12:15", "14:00 - 17:30"], "6": []
+        },
+        "distance": 131
+    },
+    {
+        "id": 99999999,
+        "code": "FR99999",
+        "is_active": false,
+        "shop_type": "1",
+        "general_shop_type": "servicepoint",
+        "extra_data": {"shop_type": "1"},
+        "name": "CLOSED FOR GOOD",
+        "street": "RUE DE LA REPUBLIQUE",
+        "house_number": "1",
+        "postal_code": "13001",
+        "city": "MARSEILLE",
+        "latitude": "43.2990",
+        "longitude": "5.3700",
+        "carrier": "mondial_relay",
+        "country": "FR",
+        "formatted_opening_times": {},
+        "distance": 50
+    }
+]

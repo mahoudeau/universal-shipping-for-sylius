@@ -1,0 +1,50 @@
+sylius_twig_hooks:
+    hooks:
+        # Shop: make the shipping step's live form actually live in the browser.
+        # Sylius's own entry is replaced rather than amended: hook props merge, and Sylius
+        # passes an "order" prop the component does not declare, harmless only while the
+        # attributes are not printed. Same props as Sylius's address step instead.
+        'sylius_shop.checkout.select_shipping.content':
+            form:
+                enabled: false
+            universal_shipping_form:
+                component: 'sylius_shop:checkout:shipping:form'
+                props:
+                    resource: '@=_context.order'
+                    form: '@=_context.form'
+                    template: '@UniversalShippingPlugin/shop/checkout/select_shipping/form.html.twig'
+                priority: 0
+
+        # Shop: the picker, under the shipping methods of each shipment.
+        'sylius_shop.checkout.select_shipping.content.form.shipments.shipment':
+            universal_shipping_pickup_point:
+                template: '@UniversalShippingPlugin/shop/checkout/select_shipping/pickup_point.html.twig'
+                priority: -100
+
+        # Shop: the chosen point in the checkout summary and the customer's order page.
+        'sylius_shop.checkout.complete.content.form.summary.statuses.shipments.list':
+            universal_shipping_pickup_point:
+                template: '@UniversalShippingPlugin/shop/order/pickup_point.html.twig'
+                priority: 50
+
+        'sylius_shop.shared.order.show.summary.statuses.shipments.list':
+            universal_shipping_pickup_point:
+                template: '@UniversalShippingPlugin/shop/order/pickup_point.html.twig'
+                priority: 50
+
+        # Admin: which delivery option a shipping method uses.
+        'sylius_admin.shipping_method.create.content.form.general':
+            universal_shipping_delivery_option:
+                template: '@UniversalShippingPlugin/admin/shipping_method/form/delivery_option.html.twig'
+                priority: 50
+
+        'sylius_admin.shipping_method.update.content.form.general':
+            universal_shipping_delivery_option:
+                template: '@UniversalShippingPlugin/admin/shipping_method/form/delivery_option.html.twig'
+                priority: 50
+
+        # Admin: the chosen point on the order page.
+        'sylius_admin.order.show.content.sections.shipments.item.general':
+            universal_shipping_pickup_point:
+                template: '@UniversalShippingPlugin/admin/order/show/pickup_point.html.twig'
+                priority: 150

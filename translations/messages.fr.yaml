@@ -1,0 +1,22 @@
+universal_shipping:
+    pickup_point:
+        label: Point relais
+        search: Chercher près d'une autre adresse
+        search_placeholder: Code postal ou adresse
+        search_button: Chercher
+        none: Aucun point relais près de cette adresse. Essayez un autre code postal.
+        closed: Fermé
+        distance_m: '%distance% m'
+        distance_km: '%distance% km'
+    admin:
+        delivery_option: Universal Shipping
+        delivery_option_help: Transporteur et option de livraison de cette méthode. Laisser vide pour une méthode Sylius classique.
+        none: Aucune
+    day:
+        0: Lundi
+        1: Mardi
+        2: Mercredi
+        3: Jeudi
+        4: Vendredi
+        5: Samedi
+        6: Dimanche

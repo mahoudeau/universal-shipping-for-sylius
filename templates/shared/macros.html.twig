@@ -1,0 +1,26 @@
+{% macro address(point) %}
+    {{ point.street }}, {{ point.postcode }} {{ point.city }}
+{% endmacro %}
+
+{% macro distance(metres) %}
+    {%- if metres is not null -%}
+        {%- if metres < 1000 -%}
+            {{ 'universal_shipping.pickup_point.distance_m'|trans({'%distance%': metres}) }}
+        {%- else -%}
+            {{ 'universal_shipping.pickup_point.distance_km'|trans({'%distance%': (metres / 1000)|format_number({fraction_digit: 1})}) }}
+        {%- endif -%}
+    {%- endif -%}
+{% endmacro %}
+
+{# One line per day, days without hours shown as closed. Day 0 is Monday. #}
+{% macro opening_hours(point) %}
+    {% if point.openingHours is not empty %}
+        <dl class="row small mb-0">
+            {% for day in 0..6 %}
+                {% set ranges = point.openingHours[day] ?? [] %}
+                <dt class="col-4 fw-normal text-secondary">{{ ('universal_shipping.day.' ~ day)|trans }}</dt>
+                <dd class="col-8 mb-0">{{ ranges is empty ? 'universal_shipping.pickup_point.closed'|trans : ranges|join(', ') }}</dd>
+            {% endfor %}
+        </dl>
+    {% endif %}
+{% endmacro %}

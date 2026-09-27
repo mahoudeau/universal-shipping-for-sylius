@@ -1,0 +1,4 @@
+universal_shipping:
+    pickup_point:
+        required: Choisissez un point relais.
+        invalid: Ce point relais n'est plus disponible. Choisissez-en un autre.

@@ -1,0 +1,62 @@
+{#
+    Rendered inside Sylius's live shipping form: every change re-renders it
+    server-side, so the search field and the radios need no JavaScript.
+#}
+{% import '@UniversalShippingPlugin/shared/macros.html.twig' as us %}
+
+{% set form = hookable_metadata.context.form %}
+
+{% if form.pickupPoint is defined %}
+    {% set choices = form.pickupPoint.vars.choices %}
+
+    <fieldset class="card border-0 bg-body-tertiary mb-5" {{ sylius_test_html_attribute('pickup-point-picker') }}>
+        <div class="card-body">
+            <legend class="h6 mb-3">{{ 'universal_shipping.pickup_point.label'|trans }}</legend>
+
+            <div class="mb-3">
+                {{ form_label(form.pickupPointSearch, null, {label_attr: {class: 'form-label small text-secondary'}}) }}
+                <div class="input-group">
+                    {{ form_widget(form.pickupPointSearch, {attr: {class: 'form-control'}}) }}
+                    <button type="button" class="btn btn-outline-secondary" data-action="live#$render">
+                        {{ 'universal_shipping.pickup_point.search_button'|trans }}
+                    </button>
+                </div>
+            </div>
+
+            {{ form_errors(form.pickupPoint) }}
+
+            {% if choices is empty %}
+                <p class="text-secondary mb-0" {{ sylius_test_html_attribute('pickup-point-none') }}>
+                    {{ 'universal_shipping.pickup_point.none'|trans }}
+                </p>
+            {% else %}
+                <div class="d-flex flex-column gap-2" role="radiogroup" aria-label="{{ 'universal_shipping.pickup_point.label'|trans }}">
+                    {% for key, child in form.pickupPoint %}
+                        {% set point = choices[key].data %}
+                        <label class="card border-0 shadow-sm" for="{{ child.vars.id }}" {{ sylius_test_html_attribute('pickup-point', point.code) }}>
+                            <span class="card-body d-flex gap-3">
+                                <input type="radio"
+                                       class="form-check-input mt-1 flex-shrink-0"
+                                       id="{{ child.vars.id }}"
+                                       name="{{ child.vars.full_name }}"
+                                       value="{{ child.vars.value }}"
+                                       {{ child.vars.checked ? 'checked' }}
+                                >
+                                <span class="flex-grow-1">
+                                    <strong class="d-block">{{ point.name }}</strong>
+                                    <span class="d-block text-secondary small">{{ us.address(point) }}</span>
+                                    {% if child.vars.checked %}
+                                        <span class="d-block mt-2">{{ us.opening_hours(point) }}</span>
+                                    {% endif %}
+                                </span>
+                                <span class="text-secondary small text-nowrap">{{ us.distance(point.distance) }}</span>
+                            </span>
+                        </label>
+                        {% do child.setRendered %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% do form.pickupPoint.setRendered %}
+        </div>
+    </fieldset>
+{% endif %}

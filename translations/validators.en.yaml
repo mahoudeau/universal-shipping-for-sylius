@@ -1,0 +1,4 @@
+universal_shipping:
+    pickup_point:
+        required: Please choose a pickup point.
+        invalid: This pickup point is no longer available. Please choose another one.

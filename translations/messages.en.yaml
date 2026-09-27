@@ -1,0 +1,22 @@
+universal_shipping:
+    pickup_point:
+        label: Pickup point
+        search: Search near another address
+        search_placeholder: Postcode or address
+        search_button: Search
+        none: No pickup point found near this address. Try another postcode.
+        closed: Closed
+        distance_m: '%distance% m'
+        distance_km: '%distance% km'
+    admin:
+        delivery_option: Universal Shipping
+        delivery_option_help: Carrier and delivery option behind this method. Leave empty for a plain Sylius method.
+        none: None
+    day:
+        0: Monday
+        1: Tuesday
+        2: Wednesday
+        3: Thursday
+        4: Friday
+        5: Saturday
+        6: Sunday

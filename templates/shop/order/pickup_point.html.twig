@@ -1,0 +1,10 @@
+{% import '@UniversalShippingPlugin/shared/macros.html.twig' as us %}
+
+{% set point = hookable_metadata.context.shipment.pickupPoint ?? null %}
+
+{% if point is not null %}
+    <div class="small" {{ sylius_test_html_attribute('pickup-point-summary', point.code) }}>
+        <strong>{{ point.name }}</strong><br>
+        <span class="text-secondary">{{ us.address(point) }}</span>
+    </div>
+{% endif %}

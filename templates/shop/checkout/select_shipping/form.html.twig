@@ -1,0 +1,23 @@
+{#
+    Same as @SyliusShop/checkout/select_shipping/content/form.html.twig, with two
+    additions that make this live component actually live:
+
+    - {{ attributes }} on the root element. Sylius leaves them out, so the browser
+      never wires the component up and nothing re-renders.
+    - "order" passed down to the child hooks. On a live re-render there is no page
+      around the component, so Sylius's shipment templates would not find it.
+
+    With both, the pickup point picker needs no JavaScript of its own.
+#}
+{% form_theme form '@SyliusShop/form/theme.html.twig' %}
+
+<div {{ attributes }}>
+    {{ form_start(form, {'action': path('sylius_shop_checkout_select_shipping'), 'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_errors(form) }}
+
+    <input type="hidden" name="_method" value="PUT" />
+
+    {% hook 'form' with { order: resource } %}
+
+    {{ form_end(form, {'render_rest': false}) }}
+</div>
