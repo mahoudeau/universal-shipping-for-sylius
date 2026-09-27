@@ -41,10 +41,15 @@ jobs:
               with:
                   dependency-versions: ${{ matrix.dependencies }}
 
+            # Style and analysis tools change their rules between versions: check them
+            # once, on current dependencies. The lowest job is there to prove the tests
+            # pass against the oldest versions composer.json allows.
             - name: Coding standard
+              if: matrix.dependencies == 'highest'
               run: vendor/bin/ecs check --no-progress-bar
 
             - name: Static analysis
+              if: matrix.dependencies == 'highest'
               run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress
 
             - name: Tests
