@@ -15,6 +15,18 @@ sylius_twig_hooks:
                     template: '@UniversalShippingPlugin/shop/checkout/select_shipping/form.html.twig'
                 priority: 0
 
+        # Shop: the map's script and styles, on checkout pages only and only when the map is on.
+        # Loaded with the page, not inside the live form, so they survive its re-renders.
+        'sylius_shop.checkout#stylesheets':
+            universal_shipping_map:
+                template: '@UniversalShippingPlugin/shop/checkout/map/stylesheets.html.twig'
+                priority: -100
+
+        'sylius_shop.checkout#javascripts':
+            universal_shipping_map:
+                template: '@UniversalShippingPlugin/shop/checkout/map/javascripts.html.twig'
+                priority: -100
+
         # Shop: the picker, under the shipping methods of each shipment.
         'sylius_shop.checkout.select_shipping.content.form.shipments.shipment':
             universal_shipping_pickup_point:

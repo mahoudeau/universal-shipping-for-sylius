@@ -1,0 +1,5 @@
+{% if universal_shipping_map.enabled %}
+    {# pmtiles is 20 KB and only used by styles with pmtiles:// sources (self-hosted Protomaps). #}
+    <script src="{{ asset('bundles/universalshippingplugin/vendor/pmtiles/pmtiles.js') }}"></script>
+    <script type="module" src="{{ asset('bundles/universalshippingplugin/pickup-point-map.js') }}"></script>
+{% endif %}

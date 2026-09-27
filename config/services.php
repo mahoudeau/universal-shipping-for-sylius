@@ -11,6 +11,7 @@ use Mahoudeau\UniversalShipping\Provider\PickupPointFinder;
 use Mahoudeau\UniversalShipping\Provider\PickupPointProviderRegistry;
 use Mahoudeau\UniversalShipping\Provider\Sendcloud\SendcloudClient;
 use Mahoudeau\UniversalShipping\Provider\Sendcloud\SendcloudPickupPointProvider;
+use Mahoudeau\UniversalShipping\Twig\MapExtension;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -58,4 +59,7 @@ return static function (ContainerConfigurator $container): void {
         ]);
 
     $services->set(ShippingMethodTypeExtension::class);
+
+    $services->set(MapExtension::class)
+        ->args([param('universal_shipping.map')]);
 };

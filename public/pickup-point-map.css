@@ -1,0 +1,56 @@
+/* Set from universal_shipping.map.theme, or override here. */
+.us-map {
+    --us-map-accent: var(--bs-primary, #1abb9c);
+    --us-map-pin-text: #fff;
+    height: 18rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.us-map-pin {
+    cursor: pointer;
+}
+
+/* A rotated square with one sharp corner: a pin. */
+.us-map-pin span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-bottom: 6px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: #fff;
+    border: 2px solid var(--us-map-accent);
+    color: var(--us-map-accent);
+    font: 600 0.8rem/1 system-ui, sans-serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Turn the number back upright. */
+.us-map-pin b {
+    transform: rotate(45deg);
+    font-weight: inherit;
+}
+
+.us-map-pin--selected {
+    z-index: 1;
+}
+
+.us-map-pin--selected span {
+    background: var(--us-map-accent);
+    color: var(--us-map-pin-text);
+}
+
+.us-point-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.75rem;
+    font-weight: 600;
+}

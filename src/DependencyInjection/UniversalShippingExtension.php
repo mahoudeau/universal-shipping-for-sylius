@@ -21,6 +21,7 @@ final class UniversalShippingExtension extends Extension implements PrependExten
 
         $container->setParameter('universal_shipping.delivery_options', $config['delivery_options']);
         $container->setParameter('universal_shipping.cache_ttl', $config['cache_ttl']);
+        $container->setParameter('universal_shipping.map', $config['map']);
         $container->setParameter('universal_shipping.sendcloud.public_key', $config['sendcloud']['public_key']);
         $container->setParameter('universal_shipping.sendcloud.secret_key', $config['sendcloud']['secret_key']);
         $container->setParameter('universal_shipping.sendcloud.service_points_url', $config['sendcloud']['service_points_url']);

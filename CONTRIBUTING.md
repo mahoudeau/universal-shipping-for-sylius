@@ -52,7 +52,9 @@ src/Model/            The pickup point, delivery modes, and the traits shops add
 src/DeliveryOption/   Delivery options declared in config, and the registry that resolves them
 src/Provider/         The provider contract, the finder (cache, outages), and one folder per provider
 src/Form/Extension/   The checkout picker and the admin field
+src/Twig/             The map settings, exposed to templates
 templates/            Shop and admin templates, plugged in through Twig hooks
+public/               The map script and styles, and vendored libraries (see public/vendor/README.md)
 config/               Services and Twig hooks
 tests/Unit/           One test class per class, mirroring src/
 ```
@@ -64,7 +66,9 @@ tests/Unit/           One test class per class, mirroring src/
 - A new provider comes with tests against a recorded answer, like
   `SendcloudPickupPointProviderTest`.
 - User-visible changes get a line in `CHANGELOG.md`, under **Unreleased**.
-- No JavaScript unless the server really cannot do it. So far it never had to.
+- No JavaScript unless the server really cannot do it. The map is the one
+  exception, and it only mirrors a list that works without it. Plain ES
+  modules, no build step, no CDN.
 
 ## Pull requests
 

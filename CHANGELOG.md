@@ -6,6 +6,15 @@ follow [semantic versioning](https://semver.org/).
 
 ## Unreleased
 
+### Added
+
+- An optional map next to the pickup point list, drawn with MapLibre GL JS
+  6.11.2. Pins are numbered like the list, and clicking one chooses the point.
+  Any MapLibre style works: OpenFreeMap by default, IGN, or a self-hosted
+  Protomaps file (PMTiles 4.5.0 ships with the plugin). Off by default
+- Map theming in config: pin colours, and the map's own background, water,
+  parks, roads, buildings and labels
+
 ## 0.1.0 · 27 September 2026
 
 **Pick a Mondial Relay point at checkout**

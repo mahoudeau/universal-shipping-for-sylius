@@ -1,6 +1,10 @@
 {#
     Rendered inside Sylius's live shipping form: every change re-renders it
     server-side, so the search field and the radios need no JavaScript.
+
+    With universal_shipping.map.enabled, a map mirrors the list. The list stays
+    the real control; the map is left alone by re-renders (data-live-ignore)
+    and reads the points from the JSON below, which is re-rendered.
 #}
 {% import '@UniversalShippingPlugin/shared/macros.html.twig' as us %}
 
@@ -9,7 +13,7 @@
 {% if form.pickupPoint is defined %}
     {% set choices = form.pickupPoint.vars.choices %}
 
-    <fieldset class="card border-0 bg-body-tertiary mb-5" {{ sylius_test_html_attribute('pickup-point-picker') }}>
+    <fieldset class="card border-0 bg-body-tertiary mb-5" data-us-picker {{ sylius_test_html_attribute('pickup-point-picker') }}>
         <div class="card-body">
             <legend class="h6 mb-3">{{ 'universal_shipping.pickup_point.label'|trans }}</legend>
 
@@ -30,6 +34,25 @@
                     {{ 'universal_shipping.pickup_point.none'|trans }}
                 </p>
             {% else %}
+                {% if universal_shipping_map.enabled %}
+                    {% set map_points = [] %}
+                    {% for key, child in form.pickupPoint %}
+                        {% set point = choices[key].data %}
+                        {% set map_points = map_points|merge([{id: point.id, name: point.name, lat: point.latitude, lng: point.longitude, selected: child.vars.checked}]) %}
+                    {% endfor %}
+                    <script type="application/json" data-us-points>{{ map_points|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP'))|raw }}</script>
+                    {% set theme = universal_shipping_map.theme %}
+                    <div class="us-map mb-3"
+                         id="us-map-{{ form.vars.id }}"
+                         data-us-map
+                         data-live-ignore
+                         data-style="{{ universal_shipping_map.style }}"
+                         data-colors="{{ theme.colors|filter(color => color is not null)|json_encode }}"
+                         style="{{ theme.accent ? '--us-map-accent: ' ~ theme.accent ~ ';' }}{{ theme.pin_text ? '--us-map-pin-text: ' ~ theme.pin_text ~ ';' }}"
+                         aria-hidden="true"
+                    ></div>
+                {% endif %}
+
                 <div class="d-flex flex-column gap-2" role="radiogroup" aria-label="{{ 'universal_shipping.pickup_point.label'|trans }}">
                     {% for key, child in form.pickupPoint %}
                         {% set point = choices[key].data %}
@@ -43,7 +66,12 @@
                                        {{ child.vars.checked ? 'checked' }}
                                 >
                                 <span class="flex-grow-1">
-                                    <strong class="d-block">{{ point.name }}</strong>
+                                    <strong class="d-block">
+                                        {% if universal_shipping_map.enabled %}
+                                            <span class="us-point-number text-secondary me-1" aria-hidden="true">{{ loop.index }}</span>
+                                        {% endif %}
+                                        {{ point.name }}
+                                    </strong>
                                     <span class="d-block text-secondary small">{{ us.address(point) }}</span>
                                     {% if child.vars.checked %}
                                         <span class="d-block mt-2">{{ us.opening_hours(point) }}</span>
