@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mahoudeau\UniversalShipping\Tests\Unit\Provider;
 
+use Mahoudeau\UniversalShipping\Address\AddressFinder;
 use Mahoudeau\UniversalShipping\DeliveryOption\DeliveryOption;
 use Mahoudeau\UniversalShipping\Model\DeliveryMode;
 use Mahoudeau\UniversalShipping\Model\PickupPoint;
@@ -12,14 +13,17 @@ use Mahoudeau\UniversalShipping\Provider\PickupPointProviderInterface;
 use Mahoudeau\UniversalShipping\Provider\PickupPointProviderRegistry;
 use Mahoudeau\UniversalShipping\Provider\PickupPointQuery;
 use Mahoudeau\UniversalShipping\Provider\ProviderUnavailableException;
+use Mahoudeau\UniversalShipping\Tests\Unit\Address\FakeAddressProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
+use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 #[CoversClass(PickupPointFinder::class)]
 #[CoversClass(PickupPointProviderRegistry::class)]
+#[CoversClass(PickupPointQuery::class)]
 final class PickupPointFinderTest extends TestCase
 {
     public function testSearchesAreCachedPerOptionAndAddress(): void
@@ -75,6 +79,65 @@ final class PickupPointFinderTest extends TestCase
     public function testFindDropsTheDistance(): void
     {
         self::assertNull($this->finder($this->countingProvider())->find('A', $this->option())?->distance);
+    }
+
+    public function testWithAGeocoderTheCarrierSearchesAroundTheAddressCoordinates(): void
+    {
+        $provider = $this->countingProvider();
+        $geocoder = new FakeAddressProvider();
+        $finder = new PickupPointFinder($this->registry($provider), new ArrayAdapter(), 600, new NullLogger(), new AddressFinder($geocoder, new ArrayAdapter()));
+
+        $finder->search(new PickupPointQuery('FR', '18 rue Francis de Pressensé, 13001 Marseille'), $this->option());
+        $finder->search(new PickupPointQuery('FR', '18 rue Francis de Pressensé, 13001 Marseille'), $this->option());
+
+        self::assertSame(43.300778, $provider->queries[0]->latitude);
+        self::assertSame(5.376726, $provider->queries[0]->longitude);
+        self::assertSame('18 rue Francis de Pressensé, 13001 Marseille', $provider->queries[0]->address, 'The address travels along');
+        self::assertSame(1, $geocoder->calls, 'A cached search is not geocoded again');
+    }
+
+    public function testWhenGeocodingFindsNothingTheCarrierGetsTheAddressAsText(): void
+    {
+        $provider = $this->countingProvider();
+        $geocoder = new FakeAddressProvider();
+        $geocoder->match = null;
+        $finder = new PickupPointFinder($this->registry($provider), new ArrayAdapter(), 600, new NullLogger(), new AddressFinder($geocoder, new ArrayAdapter()));
+
+        $points = $finder->search(new PickupPointQuery('FR', '13001'), $this->option());
+
+        self::assertCount(1, $points);
+        self::assertFalse($provider->queries[0]->hasCoordinates());
+    }
+
+    public function testWhenGeocodingIsDownTheSearchStillHappens(): void
+    {
+        $provider = $this->countingProvider();
+        $geocoder = new FakeAddressProvider();
+        $geocoder->down = true;
+        $finder = new PickupPointFinder($this->registry($provider), new ArrayAdapter(), 600, new NullLogger(), new AddressFinder($geocoder, new ArrayAdapter()));
+
+        self::assertCount(1, $finder->search(new PickupPointQuery('FR', '12 rue de la Paix, 13001 Marseille'), $this->option()));
+        self::assertFalse($provider->queries[0]->hasCoordinates());
+    }
+
+    public function testCountriesTheGeocoderDoesNotKnowAreSearchedAsText(): void
+    {
+        $provider = $this->countingProvider();
+        $geocoder = new FakeAddressProvider();
+        $finder = new PickupPointFinder($this->registry($provider), new ArrayAdapter(), 600, new NullLogger(), new AddressFinder($geocoder, new ArrayAdapter()));
+
+        $finder->search(new PickupPointQuery('BE', 'Rue de la Loi 16, 1000 Bruxelles'), $this->option());
+
+        self::assertFalse($provider->queries[0]->hasCoordinates());
+        self::assertSame(0, $geocoder->calls);
+    }
+
+    public function testQueriesWithCoordinatesAreCachedApart(): void
+    {
+        $query = new PickupPointQuery('FR', 'Marseille');
+
+        self::assertNotSame($query->cacheKey(), $query->withCoordinates(43.3, 5.37)->cacheKey());
+        self::assertFalse((new PickupPointQuery('FR', ''))->withCoordinates(43.3, 5.37)->isEmpty());
     }
 
     public function testAnOptionWithAnUnknownProviderIsAConfigurationError(): void

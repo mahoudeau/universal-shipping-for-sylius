@@ -29,10 +29,18 @@ final readonly class SendcloudPickupPointProvider implements PickupPointProvider
         $parameters = [
             'country' => $query->countryCode,
             'carrier' => $option->carrier,
-            // A single line: Sendcloud finds nothing when postcode and city are sent apart.
-            'address' => $query->address,
-            'radius' => (int) ($option->options['radius'] ?? 5000),
         ];
+
+        if (null !== $query->latitude && null !== $query->longitude) {
+            // Geocoded by the address module: search around the customer's door.
+            $parameters['latitude'] = number_format($query->latitude, 6, '.', '');
+            $parameters['longitude'] = number_format($query->longitude, 6, '.', '');
+        } else {
+            // A single line: Sendcloud finds nothing when postcode and city are sent apart.
+            $parameters['address'] = $query->address;
+        }
+
+        $parameters['radius'] = (int) ($option->options['radius'] ?? 5000);
 
         $types = $option->options['point_types'] ?? [];
         if (1 === \count($types)) {

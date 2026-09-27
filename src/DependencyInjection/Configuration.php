@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mahoudeau\UniversalShipping\DependencyInjection;
 
+use Mahoudeau\UniversalShipping\Address\Ban\BanAddressProvider;
 use Mahoudeau\UniversalShipping\Model\DeliveryMode;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -53,6 +54,36 @@ final class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('address')
+                    ->info('Address autocomplete at checkout, and geocoding for the pickup point search. Off by default. The shop server calls the provider; the browser only talks to the shop.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultFalse()->end()
+                        ->scalarNode('provider')
+                            ->info('"ban" for the French national address base, or the id of your own service implementing AddressProviderInterface.')
+                            ->defaultValue('ban')
+                            ->cannotBeEmpty()
+                        ->end()
+                        ->scalarNode('url')
+                            ->info('Where the BAN is served. The IGN Géoplateforme by default.')
+                            ->defaultValue(BanAddressProvider::DEFAULT_URL)
+                            ->cannotBeEmpty()
+                        ->end()
+                        ->booleanNode('autocomplete')
+                            ->info('Suggest addresses under the street fields of the checkout\'s address step.')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('geocode_pickup_search')
+                            ->info('Locate the customer\'s address first, and search pickup points around those coordinates. Falls back to the address as text.')
+                            ->defaultTrue()
+                        ->end()
+                        ->integerNode('cache_ttl')
+                            ->info('Seconds an address answer stays cached.')
+                            ->defaultValue(86400)
+                            ->min(0)
                         ->end()
                     ->end()
                 ->end()

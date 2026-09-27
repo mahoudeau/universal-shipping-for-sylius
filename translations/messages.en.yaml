@@ -8,6 +8,10 @@ universal_shipping:
         closed: Closed
         distance_m: '%distance% m'
         distance_km: '%distance% km'
+    address:
+        suggestions: Address suggestions
+        count: 'Addresses found: %count%. Up and down arrows to choose.'
+        none: No address found. Type it in full.
     label:
         create: Create label
         print: Print label

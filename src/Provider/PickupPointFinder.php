@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mahoudeau\UniversalShipping\Provider;
 
+use Mahoudeau\UniversalShipping\Address\AddressFinder;
 use Mahoudeau\UniversalShipping\DeliveryOption\DeliveryOption;
 use Mahoudeau\UniversalShipping\Model\PickupPoint;
 use Psr\Log\LoggerInterface;
@@ -14,6 +15,10 @@ use Symfony\Contracts\Cache\ItemInterface;
 /**
  * The single entry point the rest of the plugin uses: caches searches (the checkout
  * re-renders on every change) and turns carrier outages into an empty, logged answer.
+ *
+ * With a geocoder (address.geocode_pickup_search), the address is located first and
+ * the carrier searches around its coordinates. When geocoding finds nothing or fails,
+ * the carrier gets the address as text, as without the module.
  */
 final readonly class PickupPointFinder
 {
@@ -22,6 +27,7 @@ final readonly class PickupPointFinder
         private CacheInterface $cache,
         private int $cacheTtl = 600,
         private LoggerInterface $logger = new NullLogger(),
+        private ?AddressFinder $geocoder = null,
     ) {
     }
 
@@ -38,7 +44,8 @@ final readonly class PickupPointFinder
                 function (ItemInterface $item) use ($query, $option): array {
                     $item->expiresAfter($this->cacheTtl);
 
-                    return $this->providers->forOption($option)->search($query, $option);
+                    // Inside the cache callback: a cached search needs no geocoding either.
+                    return $this->providers->forOption($option)->search($this->locate($query), $option);
                 },
             );
         } catch (ProviderUnavailableException $exception) {
@@ -46,6 +53,20 @@ final readonly class PickupPointFinder
 
             return [];
         }
+    }
+
+    private function locate(PickupPointQuery $query): PickupPointQuery
+    {
+        if (null === $this->geocoder || $query->hasCoordinates()) {
+            return $query;
+        }
+
+        $found = $this->geocoder->geocode($query->address, $query->countryCode);
+        if (null === $found?->latitude || null === $found->longitude) {
+            return $query;
+        }
+
+        return $query->withCoordinates($found->latitude, $found->longitude);
     }
 
     /**

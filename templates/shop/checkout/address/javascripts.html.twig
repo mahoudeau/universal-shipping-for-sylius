@@ -1,0 +1,18 @@
+{#
+    Address autocomplete, on checkout pages only and only when it is on and the
+    shop has imported the route. The script finds the street fields itself: on
+    pages without them it does nothing.
+#}
+{% set suggest_url = universal_shipping_address_suggest_url() %}
+{% if suggest_url %}
+    <script type="application/json" data-us-address-config>{{ {
+        url: suggest_url,
+        minLength: constant('Mahoudeau\\UniversalShipping\\Controller\\AddressSuggestController::MIN_LENGTH'),
+        messages: {
+            list: 'universal_shipping.address.suggestions'|trans,
+            count: 'universal_shipping.address.count'|trans,
+            none: 'universal_shipping.address.none'|trans,
+        },
+    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP'))|raw }}</script>
+    <script type="module" src="{{ asset('bundles/universalshippingplugin/address-autocomplete.js') }}"></script>
+{% endif %}

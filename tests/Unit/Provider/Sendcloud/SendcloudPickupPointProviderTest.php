@@ -42,6 +42,23 @@ final class SendcloudPickupPointProviderTest extends TestCase
         self::assertContains('Authorization: Basic ' . base64_encode('public:secret'), $this->requests[0]['options']['headers']);
     }
 
+    public function testAGeocodedSearchSendsCoordinatesInsteadOfTheAddress(): void
+    {
+        $provider = $this->provider([new MockResponse($this->fixture())]);
+
+        $query = (new PickupPointQuery('FR', '18 rue Francis de Pressensé, 13001 Marseille'))->withCoordinates(43.300778, 5.376726);
+        $provider->search($query, $this->option([], ['radius' => 3000]));
+
+        parse_str((string) parse_url($this->requests[0]['url'], \PHP_URL_QUERY), $sent);
+        self::assertSame([
+            'country' => 'FR',
+            'carrier' => 'mondial_relay',
+            'latitude' => '43.300778',
+            'longitude' => '5.376726',
+            'radius' => '3000',
+        ], $sent);
+    }
+
     public function testSearchKeepsOnlyActiveRelayPointsNearestFirst(): void
     {
         $provider = $this->provider([new MockResponse($this->fixture())]);

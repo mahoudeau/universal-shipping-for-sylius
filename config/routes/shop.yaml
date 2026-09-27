@@ -1,0 +1,9 @@
+# Import without a prefix: the checkout's scripts call these URLs, and they don't
+# depend on the locale.
+#   universal_shipping_shop:
+#       resource: '@UniversalShippingPlugin/config/routes/shop.yaml'
+
+universal_shipping_address_suggest:
+    path: /universal-shipping/address/suggest
+    methods: [GET]
+    controller: Mahoudeau\UniversalShipping\Controller\AddressSuggestController

@@ -1,0 +1,33 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [5.376726, 43.300778]
+            },
+            "properties": {
+                "label": "18 Rue francis de pressense 13001 Marseille",
+                "score": 0.9690790909090908,
+                "housenumber": "18",
+                "id": "13201_3693_00018",
+                "banId": "e91a651b-d0b9-4535-92fd-0a3fea5e2dc2",
+                "name": "18 Rue francis de pressense",
+                "postcode": "13001",
+                "citycode": "13201",
+                "x": 892938.02,
+                "y": 6247527.5,
+                "city": "Marseille",
+                "district": "Marseille 1er Arrondissement",
+                "context": "13, Bouches-du-Rhône, Provence-Alpes-Côte d'Azur",
+                "type": "housenumber",
+                "importance": 0.65987,
+                "depcode": "13",
+                "street": "Rue francis de pressense",
+                "_type": "address"
+            }
+        }
+    ],
+    "query": "18 rue Francis de Pressensé 13001 Marseille"
+}

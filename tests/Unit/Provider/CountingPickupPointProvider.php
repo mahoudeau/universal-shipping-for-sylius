@@ -9,14 +9,18 @@ use Mahoudeau\UniversalShipping\Model\PickupPoint;
 use Mahoudeau\UniversalShipping\Provider\PickupPointProviderInterface;
 use Mahoudeau\UniversalShipping\Provider\PickupPointQuery;
 
-/** Returns one point and counts how often the carrier was asked. */
+/** Returns one point, counts how often the carrier was asked, and keeps what it was asked. */
 final class CountingPickupPointProvider implements PickupPointProviderInterface
 {
     public int $searches = 0;
 
+    /** @var list<PickupPointQuery> */
+    public array $queries = [];
+
     public function search(PickupPointQuery $query, DeliveryOption $option): array
     {
         ++$this->searches;
+        $this->queries[] = $query;
 
         return [$this->point()];
     }

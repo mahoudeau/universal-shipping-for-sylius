@@ -1,0 +1,136 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [3.528171, 43.35369]
+            },
+            "properties": {
+                "label": "12 Rue de la Paix 34340 Marseillan",
+                "score": 0.7812385714285714,
+                "housenumber": "12",
+                "id": "34150_0378_00012",
+                "banId": "a4c80b88-96cd-43e2-a601-e756e1313426",
+                "name": "12 Rue de la Paix",
+                "postcode": "34340",
+                "citycode": "34150",
+                "x": 742842.71,
+                "y": 6250648.73,
+                "city": "Marseillan",
+                "context": "34, Hérault, Occitanie",
+                "type": "housenumber",
+                "importance": 0.55791,
+                "depcode": "34",
+                "street": "Rue de la Paix",
+                "_type": "address"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-1.617629, 47.208098]
+            },
+            "properties": {
+                "label": "12 Rue de Marseille 44800 Saint-Herblain",
+                "score": 0.6260144755244755,
+                "housenumber": "12",
+                "id": "44162_1605_00012",
+                "banId": "603a214c-3e36-4697-b5a9-4d95fd7114be",
+                "name": "12 Rue de Marseille",
+                "postcode": "44800",
+                "citycode": "44162",
+                "x": 350673.42,
+                "y": 6688861.98,
+                "city": "Saint-Herblain",
+                "context": "44, Loire-Atlantique, Pays de la Loire",
+                "type": "housenumber",
+                "importance": 0.65539,
+                "depcode": "44",
+                "street": "Rue de Marseille",
+                "_type": "address"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [5.372752, 43.292451]
+            },
+            "properties": {
+                "label": "Rue de la paix marcel paul 13001 Marseille",
+                "score": 0.5534125837320574,
+                "id": "13201_6734",
+                "banId": "0df47f69-9662-414a-bd79-a89216d13c3b",
+                "name": "Rue de la paix marcel paul",
+                "postcode": "13001",
+                "citycode": "13201",
+                "x": 892643.33,
+                "y": 6246592.55,
+                "city": "Marseille",
+                "district": "Marseille 1er Arrondissement",
+                "context": "13, Bouches-du-Rhône, Provence-Alpes-Côte d'Azur",
+                "type": "street",
+                "importance": 0.64017,
+                "depcode": "13",
+                "street": "Rue de la paix marcel paul",
+                "_type": "address"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [4.167729, 45.496572]
+            },
+            "properties": {
+                "label": "12 Rue de la Paix 42680 Saint-Marcellin-en-Forez",
+                "score": 0.5515765034965036,
+                "housenumber": "12",
+                "id": "42256_0280_00012",
+                "banId": "80dba1ea-d652-453a-a948-3675c788143e",
+                "name": "12 Rue de la Paix",
+                "postcode": "42680",
+                "citycode": "42256",
+                "x": 791197.43,
+                "y": 6489241.89,
+                "city": "Saint-Marcellin-en-Forez",
+                "context": "42, Loire, Auvergne-Rhône-Alpes",
+                "type": "housenumber",
+                "importance": 0.52888,
+                "depcode": "42",
+                "street": "Rue de la Paix",
+                "_type": "address"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [5.373462, 43.2907]
+            },
+            "properties": {
+                "label": "Rue de la paix marcel paul 13006 Marseille",
+                "score": 0.5491116746411483,
+                "id": "13206_6734",
+                "banId": "65adc4ab-bd47-4917-b168-4262a4c86f97",
+                "name": "Rue de la paix marcel paul",
+                "postcode": "13006",
+                "citycode": "13206",
+                "x": 892706.81,
+                "y": 6246399.72,
+                "city": "Marseille",
+                "district": "Marseille 6e Arrondissement",
+                "context": "13, Bouches-du-Rhône, Provence-Alpes-Côte d'Azur",
+                "type": "street",
+                "importance": 0.59286,
+                "depcode": "13",
+                "street": "Rue de la paix marcel paul",
+                "_type": "address"
+            }
+        }
+    ],
+    "query": "12 rue de la Paix Marseille"
+}

@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use Mahoudeau\UniversalShipping\Address\AddressFinder;
+use Mahoudeau\UniversalShipping\Address\Ban\BanAddressProvider;
 use Mahoudeau\UniversalShipping\Command\FakeTrackingCommand;
+use Mahoudeau\UniversalShipping\Controller\AddressSuggestController;
 use Mahoudeau\UniversalShipping\Controller\Admin\LabelController;
 use Mahoudeau\UniversalShipping\Controller\SendcloudWebhookController;
 use Mahoudeau\UniversalShipping\DeliveryOption\DeliveryOptionRegistry;
@@ -21,6 +24,7 @@ use Mahoudeau\UniversalShipping\Provider\Sendcloud\SendcloudClient;
 use Mahoudeau\UniversalShipping\Provider\Sendcloud\SendcloudLabelProvider;
 use Mahoudeau\UniversalShipping\Provider\Sendcloud\SendcloudPickupPointProvider;
 use Mahoudeau\UniversalShipping\Tracking\ParcelTracker;
+use Mahoudeau\UniversalShipping\Twig\AddressExtension;
 use Mahoudeau\UniversalShipping\Twig\LabelExtension;
 use Mahoudeau\UniversalShipping\Twig\MapExtension;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -47,8 +51,41 @@ return static function (ContainerConfigurator $container): void {
             service('cache.app'),
             param('universal_shipping.cache_ttl'),
             service('logger')->nullOnInvalid(),
+            // Only set with address.enabled and address.geocode_pickup_search.
+            service('universal_shipping.address.geocoder')->nullOnInvalid(),
         ])
         ->tag('monolog.logger', ['channel' => 'universal_shipping']);
+
+    // Address module. The extension removes the finder when address.enabled is off,
+    // and points the aliases below at it only for the features that are on.
+    $services->set(BanAddressProvider::class)
+        ->args([
+            service('http_client'),
+            param('universal_shipping.address.url'),
+        ]);
+
+    $services->set(AddressFinder::class)
+        ->args([
+            service('universal_shipping.address.provider'),
+            service('cache.app'),
+            param('universal_shipping.address.cache_ttl'),
+            service('logger')->nullOnInvalid(),
+        ])
+        ->tag('monolog.logger', ['channel' => 'universal_shipping']);
+
+    $services->set(AddressSuggestController::class)
+        ->args([
+            // Only set with address.enabled and address.autocomplete: the route answers 404 otherwise.
+            service('universal_shipping.address.autocomplete')->nullOnInvalid(),
+        ])
+        ->public()
+        ->tag('controller.service_arguments');
+
+    $services->set(AddressExtension::class)
+        ->args([
+            param('universal_shipping.address.autocomplete'),
+            service('router'),
+        ]);
 
     $services->set(SendcloudClient::class)
         ->args([
