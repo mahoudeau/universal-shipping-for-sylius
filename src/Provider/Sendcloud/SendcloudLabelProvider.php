@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mahoudeau\UniversalShipping\Provider\Sendcloud;
 
+use Mahoudeau\UniversalShipping\Address\HouseNumber;
 use Mahoudeau\UniversalShipping\DeliveryOption\DeliveryOption;
 use Mahoudeau\UniversalShipping\Label\AsLabelProvider;
 use Mahoudeau\UniversalShipping\Label\LabelException;
@@ -96,12 +97,15 @@ final readonly class SendcloudLabelProvider implements LabelProviderInterface
         }
 
         $recipient = $request->recipient;
+        // Sylius keeps the number in the street line; carriers read it best on its own.
+        [$houseNumber, $street] = HouseNumber::split($recipient->street);
         $payload = [
             'ship_with' => ['type' => 'shipping_option_code', 'properties' => $properties],
             'to_address' => array_filter([
                 'name' => $recipient->name,
                 'company_name' => $recipient->company,
-                'address_line_1' => $recipient->street,
+                'address_line_1' => $street,
+                'house_number' => $houseNumber,
                 'postal_code' => $recipient->postcode,
                 'city' => $recipient->city,
                 'country_code' => $recipient->countryCode,

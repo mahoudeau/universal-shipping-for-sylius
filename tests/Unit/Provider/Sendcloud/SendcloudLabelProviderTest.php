@@ -48,12 +48,26 @@ final class SendcloudLabelProviderTest extends TestCase
         self::assertSame('17', $body['reference']);
         self::assertSame([
             'name' => 'Camille Martin',
-            'address_line_1' => '12 rue de la Paix',
+            'address_line_1' => 'rue de la Paix',
+            'house_number' => '12',
             'postal_code' => '13001',
             'city' => 'Marseille',
             'country_code' => 'FR',
             'email' => 'camille@example.com',
         ], $body['to_address'], 'Empty fields are left out');
+    }
+
+    public function testTheHouseNumberIsSentApartWhenTheStreetLineHasOne(): void
+    {
+        $provider = $this->provider([]);
+
+        $withBis = $provider->payload(self::request('12 bis rue de la Paix'), self::option())['to_address'];
+        self::assertSame('12 bis', $withBis['house_number']);
+        self::assertSame('rue de la Paix', $withBis['address_line_1']);
+
+        $without = $provider->payload(self::request('Lieu-dit Les Pins'), self::option())['to_address'];
+        self::assertArrayNotHasKey('house_number', $without);
+        self::assertSame('Lieu-dit Les Pins', $without['address_line_1'], 'The line stays whole');
     }
 
     public function testTheAnswerBecomesAParcel(): void
@@ -213,12 +227,12 @@ final class SendcloudLabelProviderTest extends TestCase
         return new DeliveryOption('mondial_relay', 'Mondial Relay', 'sendcloud', 'mondial_relay', DeliveryMode::PickupPoint, $options + ['shipping_option' => self::SHIPPING_OPTION]);
     }
 
-    private static function request(): LabelRequest
+    private static function request(string $street = '12 rue de la Paix'): LabelRequest
     {
         return new LabelRequest(
             reference: '17',
             orderNumber: '000000042',
-            recipient: new Recipient('Camille Martin', null, '12 rue de la Paix', '13001', 'Marseille', 'FR', 'camille@example.com', ''),
+            recipient: new Recipient('Camille Martin', null, $street, '13001', 'Marseille', 'FR', 'camille@example.com', ''),
             pickupPoint: new PickupPoint('sendcloud', '10459634', 'mondial_relay', 'FR00111', 'Porte d\'Aix Netphone', '18 rue Francis de Pressensé', '13001', 'Marseille', 'FR'),
             weightInGrams: 350,
             orderTotal: 9590,
