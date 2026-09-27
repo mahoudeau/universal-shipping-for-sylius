@@ -1,14 +1,16 @@
 {
     "name": "mahoudeau/universal-shipping-for-sylius",
     "type": "sylius-plugin",
-    "description": "Shipping carriers for Sylius 2: pickup point picker at checkout, labels and tracking. Mondial Relay through Sendcloud first.",
+    "description": "Shipping carriers for Sylius 2: pickup point picker at checkout, labels, tracking, and French address autocomplete. Mondial Relay through Sendcloud first.",
     "keywords": [
         "sylius",
         "sylius-plugin",
         "shipping",
         "pickup-point",
         "mondial-relay",
-        "sendcloud"
+        "sendcloud",
+        "address-autocomplete",
+        "geocoding"
     ],
     "license": "MIT",
     "authors": [

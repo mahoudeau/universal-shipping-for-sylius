@@ -25,8 +25,8 @@ composer test       # tests only
 composer cs-fix     # fix what the coding standard can fix on its own
 ```
 
-Tests never reach the network. The Sendcloud provider is tested against a
-recorded answer in `tests/Fixtures/sendcloud/`, served by Symfony's
+Tests never reach the network. The Sendcloud and BAN providers are tested
+against recorded answers in `tests/Fixtures/`, served by Symfony's
 `MockHttpClient`. If you need a new fixture, record a real response and trim
 it to the few points the test needs.
 
@@ -51,11 +51,12 @@ through the whole checkout without carrier credentials.
 src/Model/            The pickup point, delivery modes, and the traits shops add to their entities
 src/DeliveryOption/   Delivery options declared in config, and the registry that resolves them
 src/Provider/         The provider contract, the finder (cache, outages), and one folder per provider
+src/Address/          The optional address module: provider contract, finder, the BAN, house numbers
 src/Form/Extension/   The checkout picker and the admin field
-src/Twig/             The map settings, exposed to templates
+src/Twig/             The map settings and the address suggestion URL, exposed to templates
 templates/            Shop and admin templates, plugged in through Twig hooks
-public/               The map script and styles, and vendored libraries (see public/vendor/README.md)
-config/               Services and Twig hooks
+public/               The map and address scripts and styles, and vendored libraries (see public/vendor/README.md)
+config/               Services, Twig hooks and routes
 tests/Unit/           One test class per class, mirroring src/
 ```
 
@@ -66,9 +67,9 @@ tests/Unit/           One test class per class, mirroring src/
 - A new provider comes with tests against a recorded answer, like
   `SendcloudPickupPointProviderTest`.
 - User-visible changes get a line in `CHANGELOG.md`, under **Unreleased**.
-- No JavaScript unless the server really cannot do it. The map is the one
-  exception, and it only mirrors a list that works without it. Plain ES
-  modules, no build step, no CDN.
+- No JavaScript unless the server really cannot do it. The map and the
+  address suggestions are the two exceptions, and both only add to a form
+  that works without them. Plain ES modules, no build step, no CDN.
 
 ## Pull requests
 

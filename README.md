@@ -33,11 +33,14 @@ production user. What changed, and when: [CHANGELOG.md](CHANGELOG.md).
   own tracking field, so the "shipped" email carries it.
 - **Tracking by webhook.** The order shows where the parcel is: label ready,
   in transit, at the pickup point, delivered.
+- **Optional French addresses** from the national address base (BAN):
+  suggestions under the street fields at checkout, and a relay search centred
+  on the customer's actual door.
 - **A fake provider** with four fixed points and test labels, for demos,
   themes and tests without carrier credentials.
 - **English and French** out of the box.
 
-Colissimo and address autocomplete come next. See the [roadmap](#roadmap).
+Colissimo comes next. See the [roadmap](#roadmap).
 
 ## Why another shipping plugin
 
@@ -59,8 +62,8 @@ A few choices worth knowing before you install it:
 - **The picker needs no JavaScript.** Sylius 2 renders the shipping step as a
   live component, so the picker is a plain Symfony form that re-renders on the
   server. Choosing a method, searching an address and picking a point all
-  work without a line of custom JS. The optional map is the only script, and
-  it only mirrors the list.
+  work without a line of custom JS. The optional map and address suggestions
+  are the only scripts, and both only add to a form that works without them.
 - **The list of points is always built on the server.** The browser only ever
   sends back the id of a point from that list, so a customer cannot forge a
   point or an address.
@@ -145,7 +148,9 @@ bin/console doctrine:migrations:migrate
 
 **4. Import the routes** in `config/routes/universal_shipping.yaml`. The label
 buttons go under the admin prefix, so the admin firewall guards them. The
-webhook goes without a prefix: carriers call it, not people.
+webhook goes without a prefix: carriers call it, not people. The shop routes
+serve the checkout's scripts (only address suggestions for now) and don't
+depend on the locale.
 
 ```yaml
 universal_shipping_admin:
@@ -154,7 +159,13 @@ universal_shipping_admin:
 
 universal_shipping_webhooks:
     resource: '@UniversalShippingPlugin/config/routes/webhooks.yaml'
+
+universal_shipping_shop:
+    resource: '@UniversalShippingPlugin/config/routes/shop.yaml'
 ```
+
+Leave the shop routes out and address suggestions stay off, whatever the
+config says. Nothing else breaks.
 
 **5. Declare your delivery options** in `config/packages/universal_shipping.yaml`.
 A delivery option is one way of delivering with one carrier. The Sylius
@@ -192,6 +203,13 @@ at checkout.
 ```yaml
 universal_shipping:
     cache_ttl: 600                    # seconds a search stays cached
+    address:
+        enabled: false                # see Addresses below
+        provider: ban                 # or the id of your own AddressProviderInterface service
+        url: 'https://data.geopf.fr/geocodage'
+        autocomplete: true            # suggestions under the checkout's street fields
+        geocode_pickup_search: true   # search pickup points around the geocoded address
+        cache_ttl: 86400              # seconds an address answer stays cached
     labels:
         weight_unit: kg               # unit of the weights on your product variants
         default_weight: 0.5           # parcel weight when no product has one
@@ -287,6 +305,68 @@ styles, which covers OpenFreeMap and most free styles; other styles are only
 partly recoloured. Street names keep the style's font, since the tile server
 only has its own. For full control, design a style in
 [Maputnik](https://maplibre.org/maputnik/) and point `style` at it.
+
+## Addresses
+
+Off by default. It uses the [Base Adresse Nationale](https://adresse.data.gouv.fr)
+(BAN), France's official address base: free, open licence, no account, no key.
+
+```yaml
+universal_shipping:
+    address:
+        enabled: true
+```
+
+That turns on two things, each of which can be turned off alone:
+
+- **Suggestions at checkout** (`autocomplete`). In the address step, typing
+  in a street field lists matching addresses. Choosing one fills the street,
+  postcode and city, for the shipping and the billing address. The list
+  works with the keyboard and screen readers (the ARIA combobox pattern).
+  Without JavaScript the form is the same as before. Needs the shop routes
+  from installation step 4.
+- **A relay search around the real address** (`geocode_pickup_search`). The
+  customer's address is turned into coordinates first, and the carrier
+  searches around them instead of guessing from the text. If the BAN finds
+  nothing it trusts, or doesn't answer, the search goes out as text, as
+  without the module.
+
+It covers metropolitan France and the five overseas departments (Guadeloupe,
+Martinique, Guyane, La Réunion, Mayotte). For any other country the street
+field stays a plain field and the relay search stays as it was.
+
+**Privacy.** The customer's browser only talks to your shop. Your server
+asks the BAN, the same way carrier calls work. So the BAN sees your server's
+address and what customers type in the street field, never their IP address
+or anything else about them.
+
+**Where the BAN lives.** Since 2025 it is served by the IGN Géoplateforme at
+`https://data.geopf.fr/geocodage`, the default `url`. The older
+`api-adresse.data.gouv.fr` was announced as closing in January 2026; don't
+point `url` at it. The Géoplateforme allows 50 requests per second per IP
+address. Answers are cached for a day, so a shop rarely gets near that, but
+the suggestion route is public: put a rate limiter in front of
+`/universal-shipping/address/suggest` if you expect abuse.
+
+**Labels.** The house number goes to the carrier on its own, whatever this
+setting: "12 bis rue de la Paix" becomes number "12 bis" and street "rue de
+la Paix". A line without a leading number ("Lieu-dit Les Pins") stays whole.
+
+**Theming.** The suggestion list reads Bootstrap's colours. Override them in
+your CSS:
+
+```css
+.us-address-list {
+    --us-address-accent: #9c4a2a;     /* bar on the active suggestion */
+    --us-address-bg: #fbf8f3;
+    --us-address-active-bg: #f5f0e8;
+}
+```
+
+**Another source.** Implement `AddressProviderInterface` (`supports`,
+`suggest`, `geocode`), register it as a service, and give its id as
+`provider`. Throw `ProviderUnavailableException` when it can't be reached:
+the plugin caches answers and turns outages into empty ones.
 
 ## Labels and tracking
 
@@ -400,8 +480,8 @@ Roughly in this order. Nothing here is promised by a date.
 1. **Colissimo**, home delivery and point retrait. Sendcloud already offers
    both, so this is mostly a delivery option away.
 2. **Home delivery and lockers** as first-class delivery options.
-3. **Better addresses**: autocomplete and geocoding with the French national
-   address base (BAN), Photon for other countries.
+3. **Addresses outside France**, with a self-hosted
+   [Photon](https://github.com/komoot/photon). French addresses are done.
 4. **Labels for several orders at once**, and an option to mark a shipment
    shipped on the carrier's first scan.
 5. **A shop API endpoint** for headless checkouts.

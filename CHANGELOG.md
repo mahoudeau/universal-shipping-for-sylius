@@ -27,6 +27,26 @@ follow [semantic versioning](https://semver.org/).
   carrier involved. `label_provider` on a delivery option mixes real points
   with fake labels, and `universal-shipping:fake-tracking` moves a fake parcel
   along as a carrier would
+- An optional address module on the Base Adresse Nationale (BAN), through the
+  IGN Géoplateforme. Off by default. It covers metropolitan France and the
+  five overseas departments
+- Address suggestions under the street fields of the checkout's address step:
+  an accessible combobox that fills street, postcode and city. The browser
+  only talks to the shop, through the new shop route
+  `/universal-shipping/address/suggest` (`config/routes/shop.yaml`)
+- With the address module, the pickup point search is centred on the
+  geocoded address, and falls back to the address as text when geocoding
+  finds nothing or fails
+- `AddressProviderInterface`, so another address source can be plugged in
+- `PickupPointQuery` takes optional coordinates. Existing providers are
+  unaffected
+
+### Changed
+
+- Sendcloud labels send the house number apart from the street
+  (`house_number`), split off the start of the street line: "12 bis rue de la
+  Paix" gives "12 bis" and "rue de la Paix". Lines without a leading number
+  are sent whole, as before
 
 ## 0.1.0 · 27 September 2026
 
