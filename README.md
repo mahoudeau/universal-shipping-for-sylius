@@ -15,6 +15,40 @@ production user. What changed, and when: [CHANGELOG.md](CHANGELOG.md).
 > Sylius, Sendcloud or Mondial Relay. "Sylius" is used here only to say what
 > this plugin is for.
 
+## Status
+
+What has been checked, and how far. Updated as each item moves.
+
+**Checked against the real services**, in the shop that runs it (Sylius 2.2,
+PHP 8.4, MariaDB 11.8):
+
+- relay points from Sendcloud's live API: search, distance, opening hours, the
+  chosen point saved on the shipment
+- a relay point required before the order can go on
+- the map, and choosing a point from its pins
+- French address suggestions from the BAN, and the relay search centred on them
+
+**Covered by unit tests, not yet run against the real Sendcloud:**
+
+- labels: create, print, cancel, and the house number sent apart
+  ([#1](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/1))
+- tracking by webhook
+  ([#2](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/2))
+
+**Not tried yet:** PostgreSQL
+([#3](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/3)), a shop
+with several channels
+([#4](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/4)),
+addresses outside France.
+
+CI runs the unit tests on PHP 8.2, 8.3 and 8.4, with Sylius 2.1.15 and the
+latest 2.x.
+
+**Configuration** is in YAML and environment variables, not in the admin: the
+carrier keys, test labels and delivery options. The admin only links a shipping
+method to a delivery option. An admin settings page is planned
+([#5](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/5)).
+
 ## What it does today
 
 - **A pickup point picker in the checkout's shipping step.** Choose a method
@@ -30,9 +64,11 @@ production user. What changed, and when: [CHANGELOG.md](CHANGELOG.md).
   checkout works the same without it.
 - **Labels from the admin order page.** Create, print, and cancel while the
   carrier doesn't have the parcel yet. The tracking number goes into Sylius's
-  own tracking field, so the "shipped" email carries it.
+  own tracking field, so the "shipped" email carries it. Not yet run against
+  the real Sendcloud: see [Status](#status).
 - **Tracking by webhook.** The order shows where the parcel is: label ready,
-  in transit, at the pickup point, delivered.
+  in transit, at the pickup point, delivered. Not yet run against the real
+  Sendcloud either.
 - **Optional French addresses** from the national address base (BAN):
   suggestions under the street fields at checkout, and a relay search centred
   on the customer's actual door.
@@ -475,17 +511,42 @@ just don't appear. For tracking, turn the carrier's webhook into a call to
 
 ## Roadmap
 
-Roughly in this order. Nothing here is promised by a date.
+Roughly in this order. Nothing here is promised by a date. Each item is an
+issue, so you can follow it or add to it.
 
-1. **Colissimo**, home delivery and point retrait. Sendcloud already offers
-   both, so this is mostly a delivery option away.
-2. **Home delivery and lockers** as first-class delivery options.
-3. **Addresses outside France**, with a self-hosted
-   [Photon](https://github.com/komoot/photon). French addresses are done.
-4. **Labels for several orders at once**, and an option to mark a shipment
-   shipped on the carrier's first scan.
-5. **A shop API endpoint** for headless checkouts.
-6. **Functional tests** of the whole checkout in a Sylius test application.
+**First, check what is built:**
+
+1. **Labels against the real Sendcloud**
+   ([#1](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/1)).
+2. **Tracking webhooks from the real Sendcloud**
+   ([#2](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/2)).
+3. **PostgreSQL**
+   ([#3](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/3)) and
+   **several channels**
+   ([#4](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/4)).
+
+**Then, build:**
+
+4. **Carrier settings in the admin**: keys stored encrypted, test labels,
+   paper size, with environment variables still winning when set
+   ([#5](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/5)).
+5. **Delivery options editable in the admin**
+   ([#6](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/6)).
+6. **Colissimo**, home delivery and point retrait. Sendcloud already offers
+   both, so this is mostly a delivery option away
+   ([#7](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/7)).
+7. **Home delivery and lockers** as first-class delivery options
+   ([#8](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/8)).
+8. **Addresses outside France**, with a self-hosted
+   [Photon](https://github.com/komoot/photon). French addresses are done
+   ([#9](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/9)).
+9. **Labels for several orders at once**, and an option to mark a shipment
+   shipped on the carrier's first scan
+   ([#10](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/10)).
+10. **A shop API endpoint** for headless checkouts
+    ([#11](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/11)).
+11. **Functional tests** of the whole checkout in a Sylius test application
+    ([#12](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/12)).
 
 Want one of these sooner, or a carrier that is not on the list? Open an issue.
 
