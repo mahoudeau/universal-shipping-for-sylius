@@ -6,6 +6,17 @@ follow [semantic versioning](https://semver.org/).
 
 ## Unreleased
 
+Nothing yet.
+
+## 0.2.0 · 28 September 2026
+
+**Labels, tracking, a map and French addresses**
+
+Labels and tracking are covered by unit tests but haven't run against the real
+Sendcloud yet: see the Status section of the README, and issues
+[#1](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/1) and
+[#2](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/2).
+
 ### Added
 
 - An optional map next to the pickup point list, drawn with MapLibre GL JS
