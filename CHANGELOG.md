@@ -8,6 +8,13 @@ follow [semantic versioning](https://semver.org/).
 
 Nothing yet.
 
+## 0.3.1 · 29 September 2026
+
+### Fixed
+
+- The coding standard check failed on 0.3.0 (a missing blank line between
+  two constants). No change in behaviour.
+
 ## 0.3.0 · 29 September 2026
 
 **Insured parcels, and partly refunded orders ship**
