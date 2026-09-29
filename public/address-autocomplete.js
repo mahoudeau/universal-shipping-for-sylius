@@ -60,8 +60,9 @@ function setAttributes(input, state) {
     input.setAttribute('aria-autocomplete', 'list');
     input.setAttribute('aria-controls', state.list.id);
     input.setAttribute('aria-expanded', String(state.open));
-    // The browser's own history list would cover ours.
-    input.setAttribute('autocomplete', 'off');
+    // The field says what it is (WCAG 1.3.5), so a browser can fill a saved address in one
+    // go. "off" used to keep the browser's list from covering ours, and cost that.
+    input.setAttribute('autocomplete', 'address-line1');
     if (state.open && state.active >= 0) {
         input.setAttribute('aria-activedescendant', state.list.id + '-' + state.active);
     } else {

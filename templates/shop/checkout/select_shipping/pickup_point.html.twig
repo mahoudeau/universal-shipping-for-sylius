@@ -13,9 +13,10 @@
 {% if form.pickupPoint is defined %}
     {% set choices = form.pickupPoint.vars.choices %}
 
+    {# The legend is the fieldset's first child, or it doesn't name the group (HTML, WCAG 1.3.1). #}
     <fieldset class="card border-0 bg-body-tertiary mb-5" data-us-picker {{ sylius_test_html_attribute('pickup-point-picker') }}>
+        <legend class="h6 px-3 pt-3 mb-0">{{ 'universal_shipping.pickup_point.label'|trans }}</legend>
         <div class="card-body">
-            <legend class="h6 mb-3">{{ 'universal_shipping.pickup_point.label'|trans }}</legend>
 
             <div class="mb-3">
                 {{ form_label(form.pickupPointSearch, null, {label_attr: {class: 'form-label small text-secondary'}}) }}

@@ -41,6 +41,22 @@ final readonly class SendcloudClient
         return $data;
     }
 
+    /**
+     * The account's shipments for an order number, newest first as Sendcloud returns them.
+     * Only the first page: an order has a handful of shipments at most.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function shipmentsForOrder(string $orderNumber): array
+    {
+        $answer = $this->v3('GET', '/shipments', ['query' => ['order_number' => $orderNumber], 'timeout' => 15]);
+
+        /** @var list<array<string, mixed>> $shipments */
+        $shipments = array_values(array_filter((array) ($answer['data'] ?? []), \is_array(...)));
+
+        return $shipments;
+    }
+
     /** @return list<int> ids of the sender addresses saved in the Sendcloud account */
     public function senderAddressIds(): array
     {

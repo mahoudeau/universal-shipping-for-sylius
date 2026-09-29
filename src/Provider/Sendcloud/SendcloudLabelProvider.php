@@ -48,6 +48,13 @@ final readonly class SendcloudLabelProvider implements LabelProviderInterface
 
     public function createLabel(LabelRequest $request, DeliveryOption $option): Parcel
     {
+        // A label is paid for. If an earlier try announced the shipment but its answer never
+        // arrived (a timeout), Sendcloud has it: take that one instead of paying twice.
+        $existing = $this->existingShipment($request);
+        if (null !== $existing) {
+            return $this->parcelFrom($existing, $option);
+        }
+
         $payload = $this->payload($request, $option);
         // Sendcloud refuses a shipment without one, though its API reference says optional.
         $payload['from_address'] = ['sender_address_id' => $this->senderAddressId ?? $this->onlySenderAddressId()];
@@ -55,12 +62,44 @@ final readonly class SendcloudLabelProvider implements LabelProviderInterface
         $data = $this->client->announce($payload);
 
         $parcel = $data['parcels'][0] ?? null;
-        if (!\is_array($parcel) || !isset($data['id'], $parcel['id'])) {
-            throw new LabelException(self::errors($data) ?? 'Sendcloud did not return a parcel.');
+        if (\is_array($parcel) && 'ANNOUNCEMENT_FAILED' === ($parcel['status']['code'] ?? null)) {
+            throw new LabelException(self::errors($data) ?? 'The carrier refused the parcel.');
         }
 
-        if ('ANNOUNCEMENT_FAILED' === ($parcel['status']['code'] ?? null)) {
-            throw new LabelException(self::errors($data) ?? 'The carrier refused the parcel.');
+        return $this->parcelFrom($data, $option);
+    }
+
+    /**
+     * The live shipment Sendcloud already has for this request: same order number, same
+     * reference (the Sylius shipment id), not cancelled nor refused by the carrier.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function existingShipment(LabelRequest $request): ?array
+    {
+        foreach ($this->client->shipmentsForOrder($request->orderNumber) as $shipment) {
+            $reference = $shipment['reference'] ?? null;
+            if (!\is_scalar($reference) || (string) $reference !== $request->reference) {
+                continue;
+            }
+            $parcel = $shipment['parcels'][0] ?? null;
+            $code = \is_array($parcel) ? ($parcel['status']['code'] ?? null) : null;
+            if (!\is_string($code) || 'ANNOUNCEMENT_FAILED' === $code || str_starts_with($code, 'CANCEL')) {
+                continue;
+            }
+
+            return $shipment;
+        }
+
+        return null;
+    }
+
+    /** @param array<string, mixed> $data a v3 shipment, from the announce answer or the shipments list */
+    private function parcelFrom(array $data, DeliveryOption $option): Parcel
+    {
+        $parcel = $data['parcels'][0] ?? null;
+        if (!\is_array($parcel) || !isset($data['id'], $parcel['id'])) {
+            throw new LabelException(self::errors($data) ?? 'Sendcloud did not return a parcel.');
         }
 
         return new Parcel(

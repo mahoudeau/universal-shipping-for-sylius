@@ -104,6 +104,24 @@ function choose(picker, id) {
     radio.closest('label')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
+// The map is aria-hidden: it mirrors the list, which is the control screen readers and
+// keyboards use. MapLibre makes its canvas, zoom buttons, attribution links and markers
+// focusable, which would put keyboard users on controls a screen reader doesn't announce
+// (WCAG 4.1.2, axe "aria-hidden-focus"). Everything inside it leaves the tab order; mouse
+// and touch work as before, and the attribution stays on screen.
+function keepOutOfTabOrder(container) {
+    const untab = (root) => {
+        // summary: the compact attribution is a <details>, focusable without a tabindex.
+        root.querySelectorAll('a, button, canvas, input, summary, [tabindex]').forEach((element) => {
+            if (element.getAttribute('tabindex') !== '-1') {
+                element.setAttribute('tabindex', '-1');
+            }
+        });
+    };
+    untab(container);
+    new MutationObserver(() => untab(container)).observe(container, { childList: true, subtree: true });
+}
+
 function pin(index, selected, onClick) {
     const element = document.createElement('div');
     element.className = 'us-map-pin' + (selected ? ' us-map-pin--selected' : '');
@@ -143,6 +161,7 @@ async function render(container) {
         });
         map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-left');
         map.once('style.load', () => applyTheme(map, colors(container)));
+        keepOutOfTabOrder(container);
         state = { map, markers: [], data: '', ids: '' };
         maps.set(container, state);
     }

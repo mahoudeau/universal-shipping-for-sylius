@@ -28,6 +28,12 @@ final class SendcloudLabelProviderTest extends TestCase
     /** @var list<array{method: string, url: string, options: array<string, mixed>}> */
     private array $requests = [];
 
+    /** @var list<string> Lookups for an existing shipment (GET /shipments), kept apart from the other requests */
+    private array $lookups = [];
+
+    /** What Sendcloud answers to those lookups: no shipment yet, unless a test says otherwise. */
+    private string $existing = '{"data":[]}';
+
     public function testTheAnnouncementCarriesTheShippingOptionThePointAndTheParcel(): void
     {
         $provider = $this->provider([new MockResponse($this->fixture(), ['http_code' => 201])], senderAddressId: 42);
@@ -84,6 +90,39 @@ final class SendcloudLabelProviderTest extends TestCase
         self::assertStringStartsWith('https://tracking.', (string) $parcel->trackingUrl);
         self::assertSame(ParcelStatus::Announced, $parcel->status);
         self::assertSame('Ready to send', $parcel->statusText);
+    }
+
+    public function testAShipmentSendcloudAlreadyHasIsTakenInsteadOfPayingTwice(): void
+    {
+        // An earlier try was announced, but its answer timed out: Sendcloud lists it, with
+        // the reference the plugin sent (the Sylius shipment id).
+        $shipment = json_decode($this->fixture(), true)['data'];
+        $shipment['reference'] = '17';
+        $this->existing = (string) json_encode(['data' => [$shipment]]);
+        $provider = $this->provider([]);
+
+        $parcel = $provider->createLabel(self::request(), self::option());
+
+        self::assertSame(['https://panel.test/api/v3/shipments?order_number=000000042'], $this->lookups);
+        self::assertSame([], $this->requests, 'Nothing announced, nothing paid a second time');
+        self::assertSame('383707309', $parcel->id);
+        self::assertSame(ParcelStatus::Announced, $parcel->status);
+    }
+
+    public function testACancelledShipmentOrAnotherShipmentsIsNotTaken(): void
+    {
+        $fixture = json_decode($this->fixture(), true)['data'];
+        $fixture['reference'] = '17';
+        $cancelled = $fixture;
+        $cancelled['parcels'][0]['status'] = ['code' => 'CANCELLED', 'message' => 'Cancelled'];
+        $other = $fixture;
+        $other['reference'] = '18';
+        $this->existing = (string) json_encode(['data' => [$cancelled, $other]]);
+        $provider = $this->provider([new MockResponse($this->fixture(), ['http_code' => 201])]);
+
+        $provider->createLabel(self::request(), self::option());
+
+        self::assertSame('https://panel.test/api/v3/shipments/announce', $this->requests[0]['url'], 'A new label is announced');
     }
 
     public function testWithoutAConfiguredSenderTheAccountsOnlyOneIsUsed(): void
@@ -234,6 +273,11 @@ final class SendcloudLabelProviderTest extends TestCase
     private function provider(array $responses, bool $testMode = false, ?int $senderAddressId = 42, ?string $paperSize = null): SendcloudLabelProvider
     {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$responses): MockResponse {
+            if ('GET' === $method && str_contains($url, '/shipments?')) {
+                $this->lookups[] = $url;
+
+                return new MockResponse($this->existing);
+            }
             $this->requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
 
             return array_shift($responses) ?? throw new \LogicException('Unexpected request to ' . $url);

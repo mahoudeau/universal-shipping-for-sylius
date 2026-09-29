@@ -423,7 +423,36 @@ Then:
   then get a new one.
 
 Most carriers charge as soon as the label exists. Sendcloud refunds a label
-cancelled within 42 days if the parcel never shipped.
+cancelled within 42 days if the parcel never shipped. A label is never paid
+twice for one shipment: if Sendcloud's answer gets lost after it created one,
+the next **Create label** finds that shipment and takes it.
+
+**Partly refunded orders.** An order with a piece refunded still ships the
+rest. The plugin doesn't depend on a refund module, so by default the label
+weighs and values the whole shipment. With `sylius/refund-plugin`, tell it what
+was refunded, and a piece refunded in full leaves the weight while every refund
+comes off the declared and insured value:
+
+```php
+use Mahoudeau\UniversalShipping\Label\RefundedAmountProviderInterface;
+use Sylius\Component\Core\Model\OrderItemUnitInterface;
+use Sylius\RefundPlugin\Model\RefundType;
+use Sylius\RefundPlugin\Provider\RemainingTotalProviderInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+
+#[AsAlias(RefundedAmountProviderInterface::class)]
+final readonly class RefundedAmounts implements RefundedAmountProviderInterface
+{
+    public function __construct(private RemainingTotalProviderInterface $remaining)
+    {
+    }
+
+    public function refundedAmount(OrderItemUnitInterface $unit): int
+    {
+        return $unit->getTotal() - $this->remaining->getTotalLeftToRefund((int) $unit->getId(), RefundType::orderItemUnit());
+    }
+}
+```
 
 Labels go through Sendcloud's shipments API v3. The older parcels API is
 closed to accounts opened since April 2026.

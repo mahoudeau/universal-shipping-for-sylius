@@ -15,6 +15,8 @@ use Mahoudeau\UniversalShipping\Label\AsLabelProvider;
 use Mahoudeau\UniversalShipping\Label\LabelManager;
 use Mahoudeau\UniversalShipping\Label\LabelProviderRegistry;
 use Mahoudeau\UniversalShipping\Label\LabelRequestFactory;
+use Mahoudeau\UniversalShipping\Label\NoRefundedAmountProvider;
+use Mahoudeau\UniversalShipping\Label\RefundedAmountProviderInterface;
 use Mahoudeau\UniversalShipping\Provider\AsPickupPointProvider;
 use Mahoudeau\UniversalShipping\Provider\Fake\FakeLabelProvider;
 use Mahoudeau\UniversalShipping\Provider\Fake\FakePickupPointProvider;
@@ -115,10 +117,16 @@ return static function (ContainerConfigurator $container): void {
     $services->set(LabelProviderRegistry::class)
         ->args([tagged_locator(AsLabelProvider::TAG, 'code')]);
 
+    // Nothing refunded by default; a shop with a refund module points the alias at its own
+    // service (README, "Partly refunded orders").
+    $services->set(NoRefundedAmountProvider::class);
+    $services->alias(RefundedAmountProviderInterface::class, NoRefundedAmountProvider::class);
+
     $services->set(LabelRequestFactory::class)
         ->args([
             param('universal_shipping.labels.weight_unit'),
             param('universal_shipping.labels.default_weight'),
+            service(RefundedAmountProviderInterface::class),
         ]);
 
     $services->set(LabelManager::class)

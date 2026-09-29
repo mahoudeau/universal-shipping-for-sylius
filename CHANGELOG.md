@@ -6,7 +6,30 @@ follow [semantic versioning](https://semver.org/).
 
 ## Unreleased
 
-Nothing yet.
+**No second paid label, and a checkout the keyboard can use**
+
+### Added
+
+- `RefundedAmountProviderInterface`: what was refunded per order item unit.
+  A unit refunded in full leaves the label's weight, and every refund comes
+  off the declared and insured value. The default refunds nothing; a shop
+  with `sylius/refund-plugin` plugs it in with a few lines (README, "Partly
+  refunded orders").
+
+### Fixed
+
+- A Sendcloud label is no longer paid twice when the first try's answer is
+  lost (a timeout after Sendcloud created it). Before announcing, the
+  provider looks for a live shipment with the same order number and
+  reference, and takes it. A cancelled or failed one doesn't count.
+- The pickup point map no longer puts keyboard users on controls a screen
+  reader can't see: it is `aria-hidden`, so its canvas, zoom buttons,
+  attribution links and pins leave the tab order. Mouse and touch work as
+  before; the list stays the control.
+- The pickup point fieldset's legend is its first child, so it names the
+  group.
+- The street field says it's `address-line1` instead of turning
+  autocomplete off, so browsers can fill a saved address (WCAG 1.3.5).
 
 ## 0.3.1 · 29 September 2026
 
