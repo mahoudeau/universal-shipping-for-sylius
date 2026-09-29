@@ -1,6 +1,7 @@
 # Universal Shipping for Sylius
 
 [![CI](https://github.com/mahoudeau/universal-shipping-for-sylius/actions/workflows/ci.yaml/badge.svg)](https://github.com/mahoudeau/universal-shipping-for-sylius/actions/workflows/ci.yaml)
+[![Packagist](https://img.shields.io/packagist/v/mahoudeau/universal-shipping-for-sylius.svg)](https://packagist.org/packages/mahoudeau/universal-shipping-for-sylius)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Shipping carriers for Sylius 2, starting with the part every French shop asks
@@ -8,8 +9,9 @@ for first: letting the customer pick a Mondial Relay point at checkout.
 
 ![Choosing a relay point at checkout](docs/images/checkout-picker.png)
 
-Currently **0.1**, built alongside a small French shop that will be its first
-production user. What changed, and when: [CHANGELOG.md](CHANGELOG.md).
+Still 0.x, so a minor version may change things. Built alongside a small
+French shop that will be its first production user. What changed, and when:
+[CHANGELOG.md](CHANGELOG.md).
 
 > **Independent project.** Not affiliated with, endorsed by, or connected to
 > Sylius, Sendcloud or Mondial Relay. "Sylius" is used here only to say what
@@ -30,7 +32,8 @@ PHP 8.4, MariaDB 11.8):
 
 **Covered by unit tests, not yet run against the real Sendcloud:**
 
-- labels: create, print, cancel, and the house number sent apart
+- labels: create, print, cancel, the house number sent apart, and the
+  additional insurance
   ([#1](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/1))
 - tracking by webhook
   ([#2](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/2))
