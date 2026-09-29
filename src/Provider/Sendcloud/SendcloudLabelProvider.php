@@ -32,6 +32,7 @@ final readonly class SendcloudLabelProvider implements LabelProviderInterface
 
     /** Sendcloud's bounds for additional_insured_price, in euros. */
     private const MIN_INSURED = 2.0;
+
     private const MAX_INSURED = 5000.0;
 
     public function __construct(

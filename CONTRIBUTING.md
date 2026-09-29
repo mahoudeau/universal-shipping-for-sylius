@@ -71,6 +71,16 @@ tests/Unit/           One test class per class, mirroring src/
   address suggestions are the two exceptions, and both only add to a form
   that works without them. Plain ES modules, no build step, no CDN.
 
+## Releasing
+
+1. `composer check` passes on the release commit, all three steps, not only
+   the tests. CI runs the coding standard too, and a tag that fails it stays
+   red on Packagist's latest version.
+2. The **Unreleased** section of `CHANGELOG.md` becomes the version, with its
+   date.
+3. A "Release x.y.z" commit, then an annotated tag `vx.y.z` with a one-line
+   summary.
+
 ## Pull requests
 
 - One concern per pull request. A fix and a feature are two PRs.
