@@ -8,6 +8,27 @@ follow [semantic versioning](https://semver.org/).
 
 Nothing yet.
 
+## 0.3.0 · 29 September 2026
+
+**Insured parcels, and partly refunded orders ship**
+
+Like 0.2.0, labels are covered by unit tests but haven't run against the real
+Sendcloud yet.
+
+### Added
+
+- Sendcloud's additional insurance, per delivery option. `insure_above` (in
+  euros) turns it on for orders above that total, and `carrier_cover` (in
+  euros, 0 by default) takes off what the carrier already covers: 25 for
+  Mondial Relay. The amount goes out as `additional_insured_price`, within the
+  2 to 5000 euros Sendcloud accepts. Sendcloud charges it per label. Off
+  without `insure_above`, and never on test labels
+
+### Changed
+
+- An order with part of its payment refunded can still get a label, so the
+  items left in it can go out. A fully refunded order still can't
+
 ## 0.2.0 · 28 September 2026
 
 **Labels, tracking, a map and French addresses**
