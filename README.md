@@ -32,8 +32,9 @@ PHP 8.4, MariaDB 11.8):
 
 **Covered by unit tests, not yet run against the real Sendcloud:**
 
-- labels: create, print, cancel, the house number sent apart, and the
-  additional insurance
+- labels: create, print, cancel, the house number sent apart, the
+  additional insurance, a lost answer that no longer means a second paid
+  label, and partly refunded orders weighed and valued on what still ships
   ([#1](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/1))
 - tracking by webhook
   ([#2](https://github.com/mahoudeau/universal-shipping-for-sylius/issues/2))
@@ -64,11 +65,13 @@ method to a delivery option. An admin settings page is planned
   carrier's own point number for the drop-off.
 - **An optional map** next to the list, drawn with MapLibre on OpenStreetMap
   data. Click a pin, the point is chosen. Free map sources only, and the
-  checkout works the same without it.
+  checkout works the same without it. Keyboards and screen readers stay on
+  the list, the real control: the map never takes the focus.
 - **Labels from the admin order page.** Create, print, and cancel while the
   carrier doesn't have the parcel yet. The tracking number goes into Sylius's
-  own tracking field, so the "shipped" email carries it. Not yet run against
-  the real Sendcloud: see [Status](#status).
+  own tracking field, so the "shipped" email carries it. A shipment never pays
+  for two labels, and a partly refunded order's label leaves out what was
+  refunded. Not yet run against the real Sendcloud: see [Status](#status).
 - **Tracking by webhook.** The order shows where the parcel is: label ready,
   in transit, at the pickup point, delivered. Not yet run against the real
   Sendcloud either.

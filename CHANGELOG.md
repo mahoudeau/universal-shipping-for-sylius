@@ -6,7 +6,16 @@ follow [semantic versioning](https://semver.org/).
 
 ## Unreleased
 
+Nothing yet.
+
+## 0.4.0 · 29 September 2026
+
 **No second paid label, and a checkout the keyboard can use**
+
+Labels are still covered by unit tests only, not yet run against the real
+Sendcloud. Upgrading: nothing to change. Shops using `sylius/refund-plugin`
+can add the few lines in the README ("Partly refunded orders") so refunded
+pieces leave the label.
 
 ### Added
 
