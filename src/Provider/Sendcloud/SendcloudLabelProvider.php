@@ -21,12 +21,18 @@ use Mahoudeau\UniversalShipping\Model\ParcelStatus;
  *   shipping_option  Sendcloud shipping option code, e.g. "mondial_relay:service_point,dualapi/size=l,c2c".
  *                    POST /api/v3/shipping-options lists the ones your account can use.
  *   contract_id      Only when you have several contracts with the same carrier.
+ *   insure_above     Orders above this total, in euros, get Sendcloud's extra insurance (charged per label).
+ *   carrier_cover    What the carrier already covers, in euros, taken off the insured amount.
  */
 #[AsLabelProvider('sendcloud')]
 final readonly class SendcloudLabelProvider implements LabelProviderInterface
 {
     /** Sendcloud's free test option: a real label, never charged. */
     public const TEST_SHIPPING_OPTION = 'sendcloud:letter';
+
+    /** Sendcloud's bounds for additional_insured_price, in euros. */
+    private const MIN_INSURED = 2.0;
+    private const MAX_INSURED = 5000.0;
 
     public function __construct(
         private SendcloudClient $client,
@@ -129,7 +135,34 @@ final readonly class SendcloudLabelProvider implements LabelProviderInterface
             $payload['to_service_point'] = ['id' => (int) $request->pickupPoint->id];
         }
 
+        $insured = $this->testMode ? null : self::insuredAmount($request, $option);
+        if (null !== $insured) {
+            $payload['parcels'][0]['additional_insured_price'] = [
+                'value' => number_format($insured, 2, '.', ''),
+                'currency' => $request->currencyCode,
+            ];
+        }
+
         return $payload;
+    }
+
+    /**
+     * Sendcloud's extra cover (through its insurer, on top of the carrier's own) for orders
+     * above `insure_above`: the order total minus `carrier_cover`, within the 2 to 5000 euros
+     * Sendcloud accepts. Both settings in euros; no `insure_above`, no extra cover.
+     */
+    private static function insuredAmount(LabelRequest $request, DeliveryOption $option): ?float
+    {
+        $above = $option->options['insure_above'] ?? null;
+        $total = $request->orderTotal / 100;
+        if (!is_numeric($above) || $total <= (float) $above) {
+            return null;
+        }
+
+        $cover = $option->options['carrier_cover'] ?? 0;
+        $amount = min(self::MAX_INSURED, $total - (is_numeric($cover) ? (float) $cover : 0.0));
+
+        return $amount >= self::MIN_INSURED ? $amount : null;
     }
 
     private function onlySenderAddressId(): int

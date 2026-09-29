@@ -276,6 +276,8 @@ Sendcloud options:
 | `limit` | 10 | how many points the customer sees |
 | `shipping_option` | none | Sendcloud shipping option code for labels. `POST /api/v3/shipping-options` lists yours |
 | `contract_id` | none | only when you have several contracts with the carrier |
+| `insure_above` | none | orders above this total, in euros, get Sendcloud's additional insurance (`additional_insured_price`, charged per label by Sendcloud) |
+| `carrier_cover` | 0 | what the carrier already covers, in euros, taken off the insured amount (Mondial Relay: 25) |
 
 To develop or test without credentials, point a delivery option at the fake
 provider:

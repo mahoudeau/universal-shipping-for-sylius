@@ -42,7 +42,8 @@ final readonly class LabelManager
     {
         return $this->supports($shipment) &&
             BaseShipmentInterface::STATE_READY === $shipment->getState() &&
-            OrderPaymentStates::STATE_PAID === $shipment->getOrder()?->getPaymentState() &&
+            // Partly refunded (a piece refunded, the rest still going out) still ships.
+            \in_array($shipment->getOrder()?->getPaymentState(), [OrderPaymentStates::STATE_PAID, OrderPaymentStates::STATE_PARTIALLY_REFUNDED], true) &&
             !($this->parcelOf($shipment)?->status->isActive() ?? false);
     }
 

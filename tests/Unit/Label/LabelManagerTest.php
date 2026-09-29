@@ -52,9 +52,15 @@ final class LabelManagerTest extends TestCase
         self::assertTrue($this->labels->canCreate(self::shipment()));
     }
 
+    public function testAPartlyRefundedOrderStillShipsItsOtherItems(): void
+    {
+        self::assertTrue($this->labels->canCreate(self::shipment(paymentState: OrderPaymentStates::STATE_PARTIALLY_REFUNDED)));
+    }
+
     public function testNoLabelBeforePaymentOrAfterShipping(): void
     {
         self::assertFalse($this->labels->canCreate(self::shipment(paymentState: OrderPaymentStates::STATE_AWAITING_PAYMENT)));
+        self::assertFalse($this->labels->canCreate(self::shipment(paymentState: OrderPaymentStates::STATE_REFUNDED)));
         self::assertFalse($this->labels->canCreate(self::shipment(state: 'shipped')));
     }
 

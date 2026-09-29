@@ -131,6 +131,32 @@ final class SendcloudLabelProviderTest extends TestCase
         self::assertSame(7, $body['ship_with']['properties']['contract_id']);
     }
 
+    public function testAnOrderAboveTheThresholdIsInsuredForWhatTheCarrierDoesNotCover(): void
+    {
+        $provider = $this->provider([new MockResponse($this->fixture(), ['http_code' => 201])]);
+
+        $provider->createLabel(self::request(), self::option(['insure_above' => 50, 'carrier_cover' => 25]));
+
+        $body = json_decode((string) $this->requests[0]['options']['body'], true);
+        self::assertSame(['value' => '70.90', 'currency' => 'EUR'], $body['parcels'][0]['additional_insured_price']);
+    }
+
+    public function testNoInsuranceBelowTheThresholdOrWithoutOne(): void
+    {
+        $provider = $this->provider([
+            new MockResponse($this->fixture(), ['http_code' => 201]),
+            new MockResponse($this->fixture(), ['http_code' => 201]),
+        ]);
+
+        $provider->createLabel(self::request(), self::option(['insure_above' => 150]));
+        $provider->createLabel(self::request(), self::option());
+
+        foreach ($this->requests as $request) {
+            $body = json_decode((string) $request['options']['body'], true);
+            self::assertArrayNotHasKey('additional_insured_price', $body['parcels'][0]);
+        }
+    }
+
     public function testAnOptionWithoutShippingOptionIsRefusedBeforeCallingSendcloud(): void
     {
         $provider = $this->provider([]);
