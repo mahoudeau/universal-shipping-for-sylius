@@ -8,6 +8,34 @@ follow [semantic versioning](https://semver.org/).
 
 Nothing yet.
 
+## 0.4.1 · 30 September 2026
+
+**A pickup point search that answers on a phone**
+
+Upgrading: nothing to change. Run `assets:install` so the new script and
+stylesheet reach `public/bundles`.
+
+### Added
+
+- Address suggestions in the pickup point search, when `address.autocomplete`
+  is on: choosing one fills the field with the whole address and searches
+  around it.
+- A loading state while the search runs: the list fades and the "Search"
+  button turns into a spinner.
+- Enter in the search field searches, instead of sending the whole shipping
+  step.
+
+### Fixed
+
+- Tapping "Search" on a phone searched the previous value, so nothing seemed
+  to happen: the field's change only reached the live form once it lost the
+  focus. The tap now sends the new value, in one request.
+- More room above the picker's "Pickup point" title.
+- The order summary (checkout's last step, the customer's order page) no
+  longer shows the customer's own address as the shipping address of a pickup
+  point order: the box is titled "Delivered to a pickup point" and shows the
+  customer's name and the point.
+
 ## 0.4.0 · 29 September 2026
 
 **No second paid label, and a checkout the keyboard can use**
