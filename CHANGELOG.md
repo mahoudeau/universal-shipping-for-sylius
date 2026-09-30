@@ -8,6 +8,27 @@ follow [semantic versioning](https://semver.org/).
 
 Nothing yet.
 
+## 0.4.2 · 30 September 2026
+
+**Ready for a new shop: docs checked on a fresh install**
+
+Upgrading: nothing to change.
+
+### Changed
+
+- On the admin order page, a pickup point order's "Shipping address" reads
+  "Customer's address", with a line naming the point the parcel goes to.
+
+### Documentation
+
+- The README follows a fresh Sylius-Standard 2.2 install: no Flex recipe, the
+  imports the entity and carrier snippets need, a step for `assets:install`,
+  what `doctrine:migrations:diff` also picks up, and the order to follow on a
+  brand new project. New screenshots from that shop, in English.
+- The README lists the three Sylius hookables the plugin replaces.
+- `SECURITY.md`: how to report a vulnerability privately, and what the plugin
+  exposes.
+
 ## 0.4.1 · 30 September 2026
 
 **A pickup point search that answers on a phone**
