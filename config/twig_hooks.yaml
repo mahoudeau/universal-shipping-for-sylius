@@ -78,6 +78,13 @@ sylius_twig_hooks:
                 template: '@UniversalShippingPlugin/admin/shipping_method/form/delivery_option.html.twig'
                 priority: 50
 
+        # Admin: for a pickup point order, the customer section's "Shipping address" is only
+        # the customer's own address; says so, and names the point.
+        'sylius_admin.order.show.content.sections.customer':
+            shipping_address:
+                template: '@UniversalShippingPlugin/admin/order/show/customer_shipping_address.html.twig'
+                priority: 100
+
         # Admin: the chosen point and the parcel's tracking on the order page.
         'sylius_admin.order.show.content.sections.shipments.item.general':
             universal_shipping_pickup_point:

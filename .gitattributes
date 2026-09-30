@@ -9,6 +9,7 @@
 /phpstan.neon       export-ignore
 /phpunit.xml.dist   export-ignore
 /CONTRIBUTING.md    export-ignore
+/SECURITY.md        export-ignore
 
 # Third-party libraries: kept out of GitHub's language stats and diffs.
 /public/vendor/**   linguist-vendored -diff

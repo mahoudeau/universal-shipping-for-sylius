@@ -30,6 +30,11 @@ PHP 8.4, MariaDB 11.8):
 - the map, and choosing a point from its pins
 - French address suggestions from the BAN, and the relay search centred on them
 
+**Installed from scratch** on a fresh Sylius-Standard 2.2 (Sylius 2.2.10,
+MariaDB), following this README step by step, with the fake provider: the
+whole checkout, the summary, a paid order's label and the admin pages. The
+screenshots here come from that shop.
+
 **Covered by unit tests, not yet run against the real Sendcloud:**
 
 - labels: create, print, cancel, the house number sent apart, the
@@ -62,7 +67,12 @@ method to a delivery option. An admin settings page is planned
   both: one setting per delivery option.
 - **The chosen point is kept on the shipment**, and shown on the checkout
   summary, the customer's order page and the admin order page, with the
-  carrier's own point number for the drop-off.
+  carrier's own point number for the drop-off. On the summary it takes the
+  place of the shipping address, so the customer never reads their own
+  address as where the parcel goes.
+
+  ![The checkout summary of a pickup point order](docs/images/checkout-summary.png)
+
 - **An optional map** next to the list, drawn with MapLibre on OpenStreetMap
   data. Click a pin, the point is chosen. Free map sources only, and the
   checkout works the same without it. Keyboards and screen readers stay on
@@ -122,8 +132,20 @@ A few choices worth knowing before you install it:
 
 One more thing, found on the way: Sylius declares its shipping step as a live
 component but its template never switches it on in the browser. This plugin
-replaces that one template with a fixed copy. It is the only core template it
-touches.
+replaces that one template with a fixed copy.
+
+Everything else goes through Twig hooks, and no Sylius template file is
+overridden. Besides adding its own blocks, the plugin swaps three of Sylius's
+hookables for its own, all in `config/twig_hooks.yaml`:
+
+- the shipping step's form, for the fix above;
+- the order summary's shipping address box, which shows the point for a
+  pickup point order (checkout's last step and the customer's order page);
+- the admin order page's shipping address, titled "Customer's address" for a
+  pickup point order.
+
+If your theme replaces the same hookables, yours or the plugin's wins
+depending on bundle order: check those three first.
 
 ## Requirements
 
@@ -140,7 +162,8 @@ touches.
 composer require mahoudeau/universal-shipping-for-sylius
 ```
 
-**2. Enable the bundle** in `config/bundles.php`, if Flex did not:
+**2. Enable the bundle** in `config/bundles.php`. There is no Flex recipe yet,
+so add the line yourself:
 
 ```php
 Mahoudeau\UniversalShipping\UniversalShippingPlugin::class => ['all' => true],
@@ -149,18 +172,25 @@ Mahoudeau\UniversalShipping\UniversalShippingPlugin::class => ['all' => true],
 **3. Add the fields to your entities.** The point and the parcel live on the
 shipment, the delivery option on the shipping method.
 
+Sylius-Standard already has both entities in `src/Entity/Shipping/`, mapped
+with attributes: add the lines below to them.
+
 ```php
 // src/Entity/Shipping/Shipment.php
+use Doctrine\ORM\Mapping as ORM;
 use Mahoudeau\UniversalShipping\Model\ParcelAwareInterface;
 use Mahoudeau\UniversalShipping\Model\ParcelAwareTrait;
 use Mahoudeau\UniversalShipping\Model\PickupPointAwareInterface;
 use Mahoudeau\UniversalShipping\Model\PickupPointAwareTrait;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'sylius_shipment')]
 #[ORM\Index(columns: ['universal_shipping_parcel_id'], name: 'IDX_universal_shipping_parcel_id')]
 class Shipment extends BaseShipment implements PickupPointAwareInterface, ParcelAwareInterface
 {
     use ParcelAwareTrait;
     use PickupPointAwareTrait;
+    // ...
 }
 ```
 
@@ -189,6 +219,17 @@ Then generate and run the migration. It adds nullable columns only:
 bin/console doctrine:migrations:diff
 bin/console doctrine:migrations:migrate
 ```
+
+Read the generated migration before running it. `diff` compares the whole
+schema, so it also picks up anything else your project has drifted on: on a
+fresh Sylius-Standard 2.2 that's an index on Symfony Messenger's table. Keep
+or drop those lines as you would without the plugin.
+
+**On a brand new project**, set Sylius up first (`sylius:install`), then add
+the plugin. The other way round, the demo data is written before the
+plugin's columns exist, and `sylius:install` stops on "Unknown column
+'universal_shipping_delivery_option'". If that happened, generate and run the
+migration as above, then `bin/console sylius:fixtures:load`.
 
 **4. Import the routes** in `config/routes/universal_shipping.yaml`. The label
 buttons go under the admin prefix, so the admin firewall guards them. The
@@ -239,6 +280,17 @@ want. Keep the keys out of the repository.
 **6. Link a shipping method** in the admin: edit it and choose the delivery
 option in the **Universal Shipping** field. That method now asks for a point
 at checkout.
+
+**7. Publish the scripts and styles** under `public/bundles/`, then clear the
+cache. Sylius-Standard's Composer scripts already run the first command after
+every `composer require` and `composer update`; run it yourself if your
+project doesn't, and again after each upgrade. The files are plain ES modules
+and CSS: nothing to add to your Webpack Encore build.
+
+```sh
+bin/console assets:install
+bin/console cache:clear
+```
 
 ![The Universal Shipping field on a shipping method](docs/images/admin-shipping-method.png)
 
@@ -371,6 +423,9 @@ That turns on two things, each of which can be turned off alone:
   shipping step's relay search, choosing one fills the field and searches
   around that address. The list
   works with the keyboard and screen readers (the ARIA combobox pattern).
+
+  ![Address suggestions in the relay search](docs/images/checkout-suggestions.png)
+
   Without JavaScript the form is the same as before. Needs the shop routes
   from installation step 4.
 - **A relay search around the real address** (`geocode_pickup_search`). The
@@ -523,8 +578,11 @@ The plugin never marks a shipment shipped on its own. That stays a click on
 Implement `PickupPointProviderInterface` and give it a code:
 
 ```php
+use Mahoudeau\UniversalShipping\DeliveryOption\DeliveryOption;
+use Mahoudeau\UniversalShipping\Model\PickupPoint;
 use Mahoudeau\UniversalShipping\Provider\AsPickupPointProvider;
 use Mahoudeau\UniversalShipping\Provider\PickupPointProviderInterface;
+use Mahoudeau\UniversalShipping\Provider\PickupPointQuery;
 
 #[AsPickupPointProvider('my_carrier')]
 final class MyCarrierProvider implements PickupPointProviderInterface

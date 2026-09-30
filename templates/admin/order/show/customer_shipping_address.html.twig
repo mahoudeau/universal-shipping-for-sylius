@@ -1,0 +1,23 @@
+{#
+    The customer section's shipping address, on the admin order page. For a pickup point
+    order, Sylius's "Shipping address" is only the customer's own address: the title says
+    so and names the point the parcel goes to, shown in full under the shipment.
+#}
+{% from '@SyliusAdmin/shared/helper/address.html.twig' import address %}
+
+{% set order = hookable_metadata.context.resource %}
+{% set point = (order.shipments|filter(shipment => (shipment.pickupPoint ?? null) is not null)|first).pickupPoint ?? null %}
+
+{% if order.shippingAddress is not null %}
+    <div>
+        <strong>{{ (point is not null ? 'universal_shipping.admin.customer_address' : 'sylius.ui.shipping_address')|trans }}:</strong>
+    </div>
+    {% if point is not null %}
+        <div class="text-secondary small" {{ sylius_test_html_attribute('pickup-point-note') }}>
+            {{ 'universal_shipping.admin.delivered_to_point'|trans({'%point%': point.name}) }}
+        </div>
+    {% endif %}
+    <div class="mb-3" {{ sylius_test_html_attribute('shipping-address') }}>
+        {{ address(order.shippingAddress) }}
+    </div>
+{% endif %}

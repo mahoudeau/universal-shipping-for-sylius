@@ -55,7 +55,7 @@ src/Address/          The optional address module: provider contract, finder, th
 src/Form/Extension/   The checkout picker and the admin field
 src/Twig/             The map settings and the address suggestion URL, exposed to templates
 templates/            Shop and admin templates, plugged in through Twig hooks
-public/               The map and address scripts and styles, and vendored libraries (see public/vendor/README.md)
+public/               The map, address and relay search scripts and styles, and vendored libraries (see public/vendor/README.md)
 config/               Services, Twig hooks and routes
 tests/Unit/           One test class per class, mirroring src/
 ```
@@ -67,9 +67,13 @@ tests/Unit/           One test class per class, mirroring src/
 - A new provider comes with tests against a recorded answer, like
   `SendcloudPickupPointProviderTest`.
 - User-visible changes get a line in `CHANGELOG.md`, under **Unreleased**.
-- No JavaScript unless the server really cannot do it. The map and the
-  address suggestions are the two exceptions, and both only add to a form
-  that works without them. Plain ES modules, no build step, no CDN.
+- No JavaScript unless the server really cannot do it. The map, the address
+  suggestions and the relay search's small helper are the exceptions, and
+  each only adds to a form that works without it. Plain ES modules, no build
+  step, no CDN.
+- Sylius's own screens are changed through Twig hooks, never by overriding a
+  template file. Replacing one of Sylius's hookables is the last resort, and
+  goes in the README's list under "How it works".
 
 ## Releasing
 
@@ -80,6 +84,9 @@ tests/Unit/           One test class per class, mirroring src/
    date.
 3. A "Release x.y.z" commit, then an annotated tag `vx.y.z` with a one-line
    summary.
+4. Once the tag is pushed, a GitHub release on it, titled with the version
+   and carrying that version's CHANGELOG section:
+   `gh release create vx.y.z --title x.y.z --notes-file notes.md`.
 
 ## Pull requests
 
