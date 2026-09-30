@@ -1,6 +1,7 @@
 universal_shipping:
     pickup_point:
         label: Point relais
+        delivered_to: Livraison en point relais
         search: Chercher près d'une autre adresse
         search_placeholder: Code postal ou adresse
         search_button: Chercher

@@ -1,7 +1,7 @@
 {#
     Address autocomplete, on checkout pages only and only when it is on and the
-    shop has imported the route. The script finds the street fields itself: on
-    pages without them it does nothing.
+    shop has imported the route. The script finds the street fields and the pickup
+    point search itself: on pages without them it does nothing.
 #}
 {% set suggest_url = universal_shipping_address_suggest_url() %}
 {% if suggest_url %}

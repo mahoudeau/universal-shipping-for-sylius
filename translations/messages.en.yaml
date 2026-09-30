@@ -1,6 +1,7 @@
 universal_shipping:
     pickup_point:
         label: Pickup point
+        delivered_to: Delivered to a pickup point
         search: Search near another address
         search_placeholder: Postcode or address
         search_button: Search

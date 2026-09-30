@@ -1,0 +1,25 @@
+{#
+    The order summary's shipping address box. For a pickup point order it shows where the
+    parcel really goes: the customer's name, since the parcel is addressed to them, then
+    the point. Their own address is only where the order was billed. Otherwise Sylius's
+    own body.
+#}
+{% set order = hookable_metadata.context.order %}
+{% set address = hookable_metadata.context.address %}
+{% set point = (order.shipments|filter(shipment => (shipment.pickupPoint ?? null) is not null)|first).pickupPoint ?? null %}
+
+{% if point is not null %}
+    <div class="card-body">
+        <address class="d-flex flex-column" {{ sylius_test_html_attribute('pickup-point-address', point.code) }}>
+            {% if address is not null %}
+                <strong>{{ address.firstName }} {{ address.lastName }}</strong>
+            {% endif %}
+            <span>{{ point.name }}</span>
+            <span>{{ point.street }}</span>
+            <span>{{ point.postcode }} {{ point.city }}</span>
+            <span>{{ point.countryCode|sylius_country_name|upper }}</span>
+        </address>
+    </div>
+{% else %}
+    {% include '@SyliusShop/shared/order/show/summary/addresses/shipping/body.html.twig' %}
+{% endif %}

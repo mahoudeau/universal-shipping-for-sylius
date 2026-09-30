@@ -76,8 +76,8 @@ method to a delivery option. An admin settings page is planned
   in transit, at the pickup point, delivered. Not yet run against the real
   Sendcloud either.
 - **Optional French addresses** from the national address base (BAN):
-  suggestions under the street fields at checkout, and a relay search centred
-  on the customer's actual door.
+  suggestions under the street fields and the relay search at checkout, and a
+  relay search centred on the customer's actual door.
 - **A fake provider** with four fixed points and test labels, for demos,
   themes and tests without carrier credentials.
 - **English and French** out of the box.
@@ -104,8 +104,10 @@ A few choices worth knowing before you install it:
 - **The picker needs no JavaScript.** Sylius 2 renders the shipping step as a
   live component, so the picker is a plain Symfony form that re-renders on the
   server. Choosing a method, searching an address and picking a point all
-  work without a line of custom JS. The optional map and address suggestions
-  are the only scripts, and both only add to a form that works without them.
+  work without a line of custom JS. The scripts only add to a form that works
+  without them: the optional map and address suggestions, and a small one
+  that makes the relay search send what the field holds on a phone, shows a
+  spinner while it runs, and searches on Enter.
 - **The list of points is always built on the server.** The browser only ever
   sends back the id of a point from that list, so a customer cannot forge a
   point or an address.
@@ -365,7 +367,9 @@ That turns on two things, each of which can be turned off alone:
 
 - **Suggestions at checkout** (`autocomplete`). In the address step, typing
   in a street field lists matching addresses. Choosing one fills the street,
-  postcode and city, for the shipping and the billing address. The list
+  postcode and city, for the shipping and the billing address. In the
+  shipping step's relay search, choosing one fills the field and searches
+  around that address. The list
   works with the keyboard and screen readers (the ARIA combobox pattern).
   Without JavaScript the form is the same as before. Needs the shop routes
   from installation step 4.

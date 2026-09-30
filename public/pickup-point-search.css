@@ -1,0 +1,36 @@
+/* While the live form looks for points (Symfony UX sets [busy] on the component), the
+   list fades and the search button turns into a spinner: the tap was heard. */
+[busy] [data-us-picker] [data-us-results] {
+    opacity: 0.45;
+    transition: opacity 150ms;
+}
+
+[busy] [data-us-picker] [data-us-search] {
+    position: relative;
+    color: transparent;
+}
+
+[busy] [data-us-picker] [data-us-search]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 1.1em;
+    height: 1.1em;
+    margin: auto;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    animation: us-search-spin 700ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [busy] [data-us-picker] [data-us-search]::after {
+        animation-duration: 2s;
+    }
+}
+
+@keyframes us-search-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

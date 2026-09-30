@@ -147,7 +147,15 @@ final class CheckoutShipmentTypeExtension extends AbstractTypeExtension
             'required' => false,
             'data' => $search,
             'label' => 'universal_shipping.pickup_point.search',
-            'attr' => ['placeholder' => 'universal_shipping.pickup_point.search_placeholder', 'autocomplete' => 'postal-code'],
+            'attr' => [
+                'placeholder' => 'universal_shipping.pickup_point.search_placeholder',
+                // A search, not the customer's own postcode: the browser's list would cover
+                // the address suggestions (public/address-autocomplete.js).
+                'autocomplete' => 'off',
+                // For public/pickup-point-search.js and the address suggestions.
+                'data-us-search-field' => '',
+                'data-us-country' => (string) ($address?->getCountryCode() ?? 'FR'),
+            ],
         ]);
 
         $form->add(self::POINT_FIELD, ChoiceType::class, [

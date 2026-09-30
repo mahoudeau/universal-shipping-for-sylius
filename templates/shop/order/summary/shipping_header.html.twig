@@ -1,0 +1,8 @@
+{#
+    The title of the order summary's shipping address box (checkout's last step, the
+    customer's order page): for a pickup point order, says the parcel goes to a point.
+#}
+{% set order = hookable_metadata.context.order %}
+{% set point = (order.shipments|filter(shipment => (shipment.pickupPoint ?? null) is not null)|first).pickupPoint ?? null %}
+
+<div class="card-header">{{ (point is not null ? 'universal_shipping.pickup_point.delivered_to' : 'sylius.ui.shipping_address')|trans }}</div>

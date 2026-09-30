@@ -25,6 +25,9 @@ sylius_twig_hooks:
             universal_shipping_address:
                 template: '@UniversalShippingPlugin/shop/checkout/address/stylesheets.html.twig'
                 priority: -110
+            universal_shipping_search:
+                template: '@UniversalShippingPlugin/shop/checkout/search/stylesheets.html.twig'
+                priority: -120
 
         'sylius_shop.checkout#javascripts':
             universal_shipping_map:
@@ -33,12 +36,25 @@ sylius_twig_hooks:
             universal_shipping_address:
                 template: '@UniversalShippingPlugin/shop/checkout/address/javascripts.html.twig'
                 priority: -110
+            universal_shipping_search:
+                template: '@UniversalShippingPlugin/shop/checkout/search/javascripts.html.twig'
+                priority: -120
 
         # Shop: the picker, under the shipping methods of each shipment.
         'sylius_shop.checkout.select_shipping.content.form.shipments.shipment':
             universal_shipping_pickup_point:
                 template: '@UniversalShippingPlugin/shop/checkout/select_shipping/pickup_point.html.twig'
                 priority: -100
+
+        # Shop: for a pickup point order, the summary's shipping address box shows the point,
+        # not the customer's own address (checkout's last step and the customer's order page).
+        'sylius_shop.shared.order.show.summary.addresses.shipping':
+            header:
+                template: '@UniversalShippingPlugin/shop/order/summary/shipping_header.html.twig'
+                priority: 100
+            body:
+                template: '@UniversalShippingPlugin/shop/order/summary/shipping_body.html.twig'
+                priority: 0
 
         # Shop: the chosen point in the checkout summary and the customer's order page.
         'sylius_shop.checkout.complete.content.form.summary.statuses.shipments.list':

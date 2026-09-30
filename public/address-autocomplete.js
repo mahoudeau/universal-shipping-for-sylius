@@ -1,9 +1,10 @@
-// Address suggestions under the street fields of the checkout's address step,
-// as progressive enhancement.
+// Address suggestions under the street fields of the checkout's address step, and
+// under the pickup point search of the shipping step, as progressive enhancement.
 //
 // Without this script the form is the same plain form. With it, typing in a
 // street field lists matching addresses; choosing one fills the street,
-// postcode and city. The browser only asks the shop
+// postcode and city. In the pickup point search, choosing one fills the field with
+// the whole address and searches around it. The browser only asks the shop
 // (/universal-shipping/address/suggest), never the address provider itself.
 //
 // It follows the ARIA combobox pattern: the street field is the combobox, the
@@ -62,7 +63,8 @@ function setAttributes(input, state) {
     input.setAttribute('aria-expanded', String(state.open));
     // The field says what it is (WCAG 1.3.5), so a browser can fill a saved address in one
     // go. "off" used to keep the browser's list from covering ours, and cost that.
-    input.setAttribute('autocomplete', 'address-line1');
+    // The pickup point search is no address of the customer's: nothing for the browser to fill.
+    input.setAttribute('autocomplete', input.matches('[data-us-search-field]') ? 'off' : 'address-line1');
     if (state.open && state.active >= 0) {
         input.setAttribute('aria-activedescendant', state.list.id + '-' + state.active);
     } else {
@@ -101,6 +103,16 @@ function highlight(input, state, index) {
 }
 
 function fill(input, suggestion) {
+    // The pickup point search: the whole address in the one field, then the search runs
+    // (pickup-point-search.js makes the button send the new value).
+    if (input.matches('[data-us-search-field]')) {
+        input.value = suggestion.label;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.closest('[data-us-picker]')?.querySelector('[data-us-search]')?.click();
+        return;
+    }
+
     const values = [
         [input, suggestion.streetLine],
         [sibling(input, 'postcode'), suggestion.postcode],
@@ -159,7 +171,8 @@ function render(input, state, suggestions) {
 
 async function suggest(input, state) {
     const query = input.value.trim();
-    const country = (sibling(input, 'countryCode')?.value || '').toUpperCase();
+    // The pickup point search has no country field beside it: the template gives it the order's.
+    const country = (input.dataset.usCountry || sibling(input, 'countryCode')?.value || '').toUpperCase();
 
     state.request?.abort();
     if (query.length < config.minLength || country === '' || unsupported.has(country)) {
@@ -281,7 +294,7 @@ function forget() {
 
 function scan() {
     forget();
-    document.querySelectorAll('form input[name$="[street]"]').forEach(enhance);
+    document.querySelectorAll('form input[name$="[street]"], form input[data-us-search-field]').forEach(enhance);
 }
 
 function reposition() {
